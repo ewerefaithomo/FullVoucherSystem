@@ -1,0 +1,425 @@
+﻿@model FullVoucherSystem.Models.StaffAdvanceBudgetViewModel
+@using Microsoft.AspNetCore.Http
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Manage Budget for Other Staff Advances";
+
+    var surname = Context.Session.GetString("Surname");
+    var firstName = Context.Session.GetString("FirstName");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Other Staff Advances Budget - UBTH</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f8f4;
+            color: #243b2e;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 5px solid #0b7a43;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .header-left img {
+                width: 75px;
+                height: 75px;
+                object-fit: contain;
+            }
+
+        .portal-title h1 {
+            margin: 0;
+            font-size: 23px;
+            color: #0b7a43;
+        }
+
+        .portal-title p {
+            margin: 5px 0 0;
+            color: #52675a;
+            font-size: 14px;
+        }
+
+        .welcome-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: #0b7a43;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-dashboard {
+            background: #e8f3eb;
+            color: #0b7a43;
+        }
+
+        .btn-logout {
+            background: #b82c2c;
+            color: #fff;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1250px;
+            margin: 30px auto;
+        }
+
+        .page-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            border-top: 5px solid #0b7a43;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #0b7a43;
+            font-size: 24px;
+        }
+
+        .description {
+            color: #58675d;
+            line-height: 1.6;
+        }
+
+        .alert-success {
+            padding: 13px 16px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .validation-summary-errors {
+            color: #a11b1b;
+            background: #fff0f0;
+            border: 1px solid #e5baba;
+            border-radius: 5px;
+            padding: 12px 18px;
+            margin-bottom: 18px;
+        }
+
+            .validation-summary-errors ul {
+                margin-bottom: 0;
+            }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        thead th {
+            background: #0b7a43;
+            color: #fff;
+            text-align: left;
+            padding: 14px 12px;
+            font-size: 14px;
+        }
+
+        tbody td {
+            border: 1px solid #dce5de;
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f5faf6;
+        }
+
+        tbody tr:hover {
+            background: #eaf5ed;
+        }
+
+        .payee-name {
+            font-weight: bold;
+            color: #244a32;
+            overflow-wrap: anywhere;
+        }
+
+        .form-control {
+            width: 100%;
+            min-width: 130px;
+            padding: 10px;
+            border: 1px solid #b9cbbd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+            .form-control:focus {
+                outline: 2px solid #9bc9a9;
+                border-color: #0b7a43;
+            }
+
+        .submit-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-submit {
+            background: #0b7a43;
+            color: #fff;
+            padding: 12px 28px;
+            font-size: 15px;
+        }
+
+            .btn-submit:hover {
+                background: #075b32;
+            }
+
+        .btn-back {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .empty-message {
+            padding: 25px;
+            text-align: center;
+            color: #6b746d;
+            background: #f8faf8;
+            border: 1px solid #dce5de;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 16px;
+            background: #0b7a43;
+            color: #fff;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @@media (max-width: 768px) {
+            .header
+
+        {
+            padding: 15px;
+        }
+
+        .header-left img {
+            width: 55px;
+            height: 55px;
+        }
+
+        .portal-title h1 {
+            font-size: 17px;
+        }
+
+        .portal-title p {
+            font-size: 12px;
+        }
+
+        .welcome-box {
+            width: 100%;
+        }
+
+        .container {
+            width: 94%;
+            margin: 20px auto;
+        }
+
+        .page-card {
+            padding: 16px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <img src="@Url.Content("~/images/ubth-logo.jpeg")" alt="UBTH Logo" />
+            <div class="portal-title">
+                <h1>University of Benin Teaching Hospital</h1>
+                <p>Voucher Management Portal System</p>
+            </div>
+        </div>
+
+        <div class="welcome-box">
+            <span>Welcome, <strong>@surname @firstName</strong></span>
+            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-dashboard">Dashboard</a>
+            <a href="@Url.Action("Logout", "Account")" class="btn btn-logout">Log Out</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert-success" role="status">
+                @TempData["Message"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div style="padding:13px 16px;
+                    background:#fff0f0;
+                    color:#a11b1b;
+                    border:1px solid #e5baba;
+                    border-radius:5px;
+                    margin-bottom:20px;"
+                 role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+
+        <section class="page-card">
+            <h2>Manage Budget for Other Staff Advances (SA)</h2>
+
+            <p class="description">
+                This page lists each payee once from voucher records whose
+                voucher numbers contain <strong>/SA-2/</strong>. Enter the
+                corresponding vote reference number and budget amount.
+                Leave a field blank to retain its previously saved value.
+            </p>
+
+            <div asp-validation-summary="All"
+                 class="validation-summary-errors"
+                 role="alert"></div>
+
+            @if (Model?.Items != null && Model.Items.Count > 0)
+            {
+                <form asp-controller="Budget"
+                      asp-action="ManageStaffAdvances"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 44%;">PAYEE WITH OTHER STAFF ADVANCES</th>
+                                    <th style="width: 26%;">VOTE REF. NO</th>
+                                    <th style="width: 30%;">BUDGET AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="payee-name">
+                                                @Model.Items[i].Payee
+                                            </span>
+
+                                            <input type="hidden"
+                                                   asp-for="Items[i].Payee" />
+
+                                            <span asp-validation-for="Items[i].Payee"></span>
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="Items[i].VoteRefNo"
+                                                   class="form-control"
+                                                   maxlength="100"
+                                                   placeholder="Enter vote ref. no." />
+
+                                            <span asp-validation-for="Items[i].VoteRefNo"></span>
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="Items[i].BudgetAmount"
+                                                   class="form-control"
+                                                   type="number"
+                                                   min="0"
+                                                   max="9999999999999999.99"
+                                                   step="0.01"
+                                                   placeholder="Enter budget amount" />
+
+                                            <span asp-validation-for="Items[i].BudgetAmount"></span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="submit-area">
+                        <a href="@Url.Action("Index", "Dashboard")"
+                           class="btn btn-back">
+                            Back to Dashboard
+                        </a>
+
+                        <button type="submit" class="btn btn-submit">
+                            Submit Budget
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="empty-message">
+                    No payees were found in voucher records containing
+                    <strong>/SA-2/</strong>.
+                </div>
+
+                <div class="submit-area">
+                    <a href="@Url.Action("Index", "Dashboard")"
+                       class="btn btn-back">
+                        Back to Dashboard
+                    </a>
+                </div>
+            }
+        </section>
+    </main>
+
+    <footer class="footer">
+        UNIVERSITY OF BENIN TEACHING HOSPITAL &copy; @DateTime.Now.Year Voucher Management System
+    </footer>
+</body>
+</html>

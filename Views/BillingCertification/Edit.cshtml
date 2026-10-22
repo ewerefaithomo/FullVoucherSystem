@@ -1,0 +1,943 @@
+﻿@model FullVoucherSystem.Models.BillingCertification
+
+@{
+    Layout = null;
+
+    decimal grossAmount = Model != null
+        ? (Model.Amount + Model.VAT)
+        : 0;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Billing Certification - UBTH</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 60px;
+            }
+
+            .logo-area h2 {
+                margin-left: 10px;
+                color: #2e7d32;
+            }
+
+        .user-info {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            width: 550px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+
+        /* =========================================================
+                   AMOUNT INPUTS
+                   ========================================================= */
+
+        .amount-input {
+            text-align: left !important;
+            /* Firefox */
+            -moz-appearance: textfield;
+            /* Standard */
+            appearance: textfield;
+        }
+
+            /* Chrome, Edge, Safari, Opera */
+            .amount-input::-webkit-outer-spin-button,
+            .amount-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+        /* Gross amount is calculated automatically */
+        .gross-amount {
+            background-color: #e9ecef !important;
+            cursor: not-allowed;
+        }
+
+        /* Readonly styling */
+        input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        .cert-box {
+            background: #f1f8f4;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c8e6c9;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #1b5e20;
+            }
+
+        .btn {
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+            color: white;
+            margin-left: 5px;
+            display: inline-block;
+        }
+
+        .print-btn {
+            background-color: #2e7d32;
+        }
+
+        .close-btn {
+            background-color: gray;
+        }
+
+        .dashboard-btn {
+            background-color: #1565c0;
+        }
+
+            .dashboard-btn:hover {
+                background-color: #0d47a1;
+            }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        .status-red {
+            color: red;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+
+        .query-box {
+            width: 100%;
+            min-height: 150px;
+            height: 180px;
+            font-size: 14px;
+            padding: 10px;
+            cursor: text;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+
+        <div class="logo-area">
+
+            <img src="~/images/ubth-logo.jpeg"
+                 alt="UBTH Logo" />
+
+            <h2>
+                UBTH Billing Certification
+            </h2>
+
+        </div>
+
+        <div class="user-info">
+            @ViewBag.Surname @ViewBag.FirstName
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>
+                Billing Certification Details
+            </h2>
+
+
+            <form id="billingForm"
+                  asp-action="Edit"
+                  asp-controller="BillingCertification"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="Id"
+                       value="@Model.Id" />
+
+
+                <h3>
+                    Voucher Information
+                </h3>
+
+
+                <label>
+                    Voucher Number
+                </label>
+
+                <input type="text"
+                       name="VoucherNumber"
+                       value="@Model.VoucherNumber"
+                       readonly />
+
+
+                <label>
+                    Checked Location
+                </label>
+
+                <input type="text"
+                       name="CheckedLocation"
+                       value="@Model.CheckedLocation" />
+
+
+                <label>
+                    Station
+                </label>
+
+                <input type="text"
+                       name="Station"
+                       value="@Model.Station" />
+
+                <label>
+                    Account Code
+                </label>
+
+                <input type="text"
+                       name="Account Code"
+                       value="@Model.AccountCode" />
+
+
+                <label>
+                    Head
+                </label>
+
+                <input type="text"
+                       name="Head"
+                       value="@Model.Head" />
+
+
+                <label>
+                    Sub Head
+                </label>
+
+                <input type="text"
+                       name="SubHead"
+                       value="@Model.SubHead" />
+
+
+                <label>
+                    Classification Code
+                </label>
+
+                <input type="text"
+                       name="ClassificationCode"
+                       value="@Model.ClassificationCode" />
+
+
+                <label>
+                    Source Classification
+                </label>
+
+                <input type="text"
+                       name="SourceClassificationCode"
+                       value="@Model.SourceClassificationCode" />
+
+
+                <label>
+                    Date
+                </label>
+
+                <input type="date"
+                       name="Date"
+                       value="@Model.Date.ToString("yyyy-MM-dd")" />
+
+
+                <label>
+                    Payee
+                </label>
+
+                <input type="text"
+                       name="Payee"
+                       value="@Model.Payee" />
+
+
+                <label>
+                    Address
+                </label>
+
+                <input type="text"
+                       name="Address"
+                       value="@Model.Address" />
+
+
+                <label>
+                    Description
+                </label>
+
+                <textarea name="Description"
+                          class="description-box"
+                          rows="4">@Model.Description</textarea>
+
+
+                <!-- =====================================================
+                     FINANCIAL INFORMATION
+                     ===================================================== -->
+
+               <label>
+                    Gross Amount
+                </label>
+
+                <input type="text"
+                       id="GrossAmount"
+                       value="@grossAmount.ToString("N2")"
+                       class="amount-input gross-amount" />
+
+
+               
+                <label>
+                    FGN VAT
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="VAT"
+                       name="VAT"
+                       value="@Model.VAT"
+                       class="amount-input" />
+
+
+                <label>
+                    Contract Amount
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="Amount"
+                       name="Amount"
+                       value="@Model.Amount"
+                       class="amount-input" />
+
+
+                <label>
+                    FGN WHT
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="FGN_WHT"
+                       name="FGN_WHT"
+                       value="@Model.FGN_WHT"
+                       class="amount-input" />
+
+
+                <label>
+                    EDG WHT
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="EDG_WHT"
+                       name="EDG_WHT"
+                       value="@Model.EDG_WHT"
+                       class="amount-input" />
+
+
+                <label>
+                    Stamp Duty
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="StampDuty"
+                       name="StampDuty"
+                       value="@Model.StampDuty"
+                       class="amount-input" />
+
+
+                <label>
+                    Net Amount
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       min="0"
+                       id="TotalAmount"
+                       name="TotalAmount"
+                       value="@Model.TotalAmount"
+                       class="amount-input" />
+
+
+                <hr />
+
+
+                <!-- =====================================================
+                     QUERY INFORMATION
+                     ===================================================== -->
+
+                <h3>
+                    Query Information
+                </h3>
+
+
+                <label>
+                    Query / Remark
+                </label>
+
+                <textarea name="QueryText"
+                          id="Query"
+                          class="query-box"
+                          rows="8"
+                          placeholder="Enter query, observations, corrections, remarks or reasons for withholding certification here. If no query, kindly type NIL.">@Model.QueryText</textarea>
+
+
+                <!-- =====================================================
+                     CERTIFICATION
+                     ===================================================== -->
+
+                <div class="cert-box">
+
+                    <label>
+
+                        <input type="checkbox"
+                               id="certify"
+                               name="certify"
+                               value="true"
+                               disabled />
+
+                        I certify that the above amount is correct,
+                        and was incurred under the Authority quoted;
+                        that the service has been duly performed;
+                        that the rate/price charged is according to
+                        regulations/contract and is fair and reasonable;
+                        that the amount is
+
+                        <b>
+                            <span id="lblContractAmount">
+                                @Model.Amount
+                            </span>
+                        </b>
+
+                        Naira/Kobo may be paid under the Classification quoted.
+
+                    </label>
+
+                </div>
+
+
+                <div class="section">
+
+                    <button type="submit"
+                            id="btnSubmit"
+                            disabled>
+
+                        Submit
+
+                    </button>
+
+
+                    <button type="submit"
+                            formaction="/BillingCertification/SendToQuery"
+                            formmethod="post"
+                            id="btnQuery"
+                            style="background-color:#dc3545;color:white;">
+
+                        Send To Query
+
+                    </button>
+
+
+                    <a href="@Url.Action("PrintAudit", "BillingCertification", new { voucherNumber = Model.VoucherNumber })"
+                       target="_blank"
+                       id="btnPrint"
+                       class="btn print-btn"
+                       style="display:none;">
+
+                        Print Voucher
+
+                    </a>
+
+
+                    <a href="/BillingCertification/Index"
+                       class="btn close-btn">
+
+                        Close
+
+                    </a>
+
+
+                    <a href="/Dashboard/Index"
+                       class="btn dashboard-btn">
+
+                        Back to Dashboard
+
+                    </a>
+
+                </div>
+
+
+                <hr />
+
+
+                <p>
+
+                    <b>
+                        Prepared By:
+                    </b>
+
+                    <br />
+
+                    @Model.Voucher_Surname
+                    @Model.Voucher_FirstName
+                    (@Model.Voucher_Designation)
+
+                </p>
+
+
+                <p>
+
+                    <b>
+                        Certified By:
+                    </b>
+
+                    <br />
+
+                    @if (Model.Bill_Surname != null)
+                    {
+                        @Model.Bill_Surname
+                        @Model.Bill_FirstName
+
+                        <text>
+                            (@Model.Bill_Designation)
+                        </text>
+                    }
+                    else
+                    {
+                        <span class="status-red">
+                            Not yet certified
+                        </span>
+                    }
+
+                </p>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var queryBox =
+                document.getElementById("Query");
+
+            var certifyBox =
+                document.getElementById("certify");
+
+            var submitBtn =
+                document.getElementById("btnSubmit");
+
+            var queryBtn =
+                document.getElementById("btnQuery");
+
+            var form =
+                document.getElementById("billingForm");
+
+            var amountInput =
+                document.getElementById("Amount");
+
+            var vatInput =
+                document.getElementById("VAT");
+
+            var grossAmountInput =
+                document.getElementById("GrossAmount");
+
+            var lblContractAmount =
+                document.getElementById("lblContractAmount");
+
+
+            /* =========================================================
+               UPDATE GROSS AMOUNT
+               Gross Amount = Contract Amount + FGN VAT
+               ========================================================= */
+
+            function updateCalculations() {
+
+                var amt =
+                    parseFloat(amountInput.value) || 0;
+
+                var vat =
+                    parseFloat(vatInput.value) || 0;
+
+                var gross =
+                    amt + vat;
+
+                grossAmountInput.value =
+                    gross.toLocaleString(
+                        "en-NG",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+
+                lblContractAmount.textContent =
+                    amt.toLocaleString(
+                        "en-NG",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+            }
+
+
+            amountInput.addEventListener(
+                "input",
+                updateCalculations
+            );
+
+            vatInput.addEventListener(
+                "input",
+                updateCalculations
+            );
+
+
+            /* =========================================================
+               PREVENT MOUSE-WHEEL FROM CHANGING AMOUNT VALUES
+
+               This applies to:
+               - FGN VAT
+               - Contract Amount
+               - FGN WHT
+               - EDG WHT
+               - Stamp Duty
+               - Net Amount
+
+               Keyboard entry remains enabled.
+               ========================================================= */
+
+            var amountFields =
+                document.querySelectorAll(
+                    ".amount-input[type='number']"
+                );
+
+            amountFields.forEach(function (field) {
+
+                field.addEventListener(
+                    "wheel",
+                    function (event) {
+
+                        event.preventDefault();
+
+                    },
+                    {
+                        passive: false
+                    }
+                );
+
+            });
+
+
+            /* =========================================================
+               QUERY VALIDATION
+               ========================================================= */
+
+            function validateQuery() {
+
+                var queryValue =
+                    queryBox.value
+                        .trim()
+                        .toUpperCase();
+
+
+                if (queryValue === "NIL") {
+
+                    certifyBox.disabled = false;
+
+                }
+                else {
+
+                    certifyBox.checked = false;
+
+                    certifyBox.disabled = true;
+
+                    submitBtn.disabled = true;
+
+                }
+
+
+                if (
+                    queryValue === "" ||
+                    queryValue === "NIL"
+                ) {
+
+                    queryBtn.disabled = true;
+
+                }
+                else {
+
+                    queryBtn.disabled = false;
+
+                }
+
+            }
+
+
+            queryBox.addEventListener(
+                "keyup",
+                validateQuery
+            );
+
+            queryBox.addEventListener(
+                "change",
+                validateQuery
+            );
+
+
+            /* =========================================================
+               CERTIFICATION CHECKBOX
+               ========================================================= */
+
+            certifyBox.addEventListener(
+                "change",
+                function () {
+
+                    submitBtn.disabled =
+                        !certifyBox.checked;
+
+                }
+            );
+
+
+            /* =========================================================
+               INITIALIZE
+               ========================================================= */
+
+            updateCalculations();
+
+            validateQuery();
+
+
+            /* =========================================================
+               FORM SUBMISSION
+               ========================================================= */
+
+            form.addEventListener(
+                "submit",
+                function (e) {
+
+                    /*
+                     * Allow "Send To Query" to submit normally.
+                     */
+                    if (
+                        e.submitter &&
+                        e.submitter.id !== "btnSubmit"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    e.preventDefault();
+
+
+                    var formData =
+                        new FormData(form);
+
+
+                    fetch(
+                        form.action,
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    )
+                    .then(
+                        response =>
+                            response.json()
+                    )
+                    .then(
+                        data => {
+
+                            if (!data.success) {
+
+                                Swal.fire(
+                                    "Error",
+                                    "Unable to submit voucher.",
+                                    "error"
+                                );
+
+                                return;
+
+                            }
+
+
+                            Swal.fire({
+
+                                icon: "success",
+
+                                title:
+                                    "Voucher Submitted Successfully",
+
+                                text:
+                                    "Do you want to print this voucher?",
+
+                                showCancelButton: true,
+
+                                confirmButtonText: "Yes",
+
+                                cancelButtonText: "No"
+
+                            })
+                            .then(
+                                (result) => {
+
+                                    if (
+                                        result.isConfirmed
+                                    ) {
+
+                                        var printWindow =
+                                            window.open(
+                                                "/BillingCertification/PrintAudit?voucherNumber="
+                                                +
+                                                encodeURIComponent(
+                                                    data.voucherNumber
+                                                ),
+                                                "_blank"
+                                            );
+
+
+                                        var timer =
+                                            setInterval(
+                                                function () {
+
+                                                    if (
+                                                        printWindow.closed
+                                                    ) {
+
+                                                        clearInterval(
+                                                            timer
+                                                        );
+
+                                                        window.location.href =
+                                                            "/BillingCertification/Index";
+
+                                                    }
+
+                                                },
+                                                500
+                                            );
+
+                                    }
+                                    else {
+
+                                        window.location.href =
+                                            "/BillingCertification/Index";
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+        });
+
+    </script>
+
+</body>
+</html>

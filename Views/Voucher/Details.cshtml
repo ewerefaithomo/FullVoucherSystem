@@ -1,0 +1,323 @@
+﻿@model FullVoucherSystem.Models.Voucher
+
+@{
+    Layout = null;
+    decimal grossAmount = Model != null ? (Model.Amount + Model.VAT) : 0;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voucher Record - UBTH</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 3px solid #2e7d32;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 55px;
+                height: auto;
+            }
+
+            .logo-area h2 {
+                margin: 0 0 0 15px;
+                color: #2e7d32;
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .record-box {
+            background: #ffffff;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        .record-title {
+            text-align: center;
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+            .record-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60px;
+                height: 3px;
+                background-color: #2e7d32;
+                border-radius: 2px;
+            }
+
+        .record-group-section {
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px 22px 15px 22px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+            .record-group-section legend {
+                padding: 0 12px;
+                color: #1b5e20;
+                font-size: 16px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                background-color: #ffffff;
+                border: 1px solid #a5d6a7;
+                border-radius: 4px;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            table tr td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #e0e0e0;
+                font-size: 14px;
+            }
+
+            table tr:last-child td {
+                border-bottom: none;
+            }
+
+            table tr td:first-child {
+                font-weight: 600;
+                width: 40%;
+                color: #2e7d32;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            table tr td:last-child {
+                color: #333;
+                font-weight: 500;
+            }
+
+        .highlight-row {
+            background-color: #f1f8e9;
+            font-weight: bold;
+        }
+
+            .highlight-row td {
+                color: #1b5e20 !important;
+            }
+
+        .button-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .edit-btn {
+            flex: 2;
+            padding: 12px 20px;
+            background-color: #2e7d32;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .edit-btn:hover {
+                background-color: #1b5e20;
+            }
+
+        .close-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: #616161;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+            .close-btn:hover {
+                background-color: #424242;
+            }
+
+        @@media (max-width: 600px) {
+            .button-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <h2>UBTH Voucher System</h2>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="record-box">
+            <h2 class="record-title">Voucher Record Summary</h2>
+
+            <fieldset class="record-group-section">
+                <legend>1. Voucher & Classification Details</legend>
+                <table>
+                    <tr>
+                        <td>Voucher Type</td>
+                        <td>@Model.VoucherType</td>
+                    </tr>
+                    <tr>
+                        <td>Voucher Number</td>
+                        <td>@Model.VoucherNumber</td>
+                    </tr>
+                    <tr>
+                        <td>Checked Location</td>
+                        <td>@Model.CheckedLocation</td>
+                    </tr>
+                    <tr>
+                        <td>Station</td>
+                        <td>@Model.Station</td>
+                    </tr>
+                    <tr>
+                        <td>Account Code</td>
+                        <td>@Model.AccountCode</td>
+                    </tr>
+                    <tr>
+                        <td>Head</td>
+                        <td>@Model.Head</td>
+                    </tr>
+                    <tr>
+                        <td>Sub Head</td>
+                        <td>@Model.SubHead</td>
+                    </tr>
+                    <tr>
+                        <td>Classification Code</td>
+                        <td>@Model.ClassificationCode</td>
+                    </tr>
+                    <tr>
+                        <td>Source Classification</td>
+                        <td>@Model.SourceClassificationCode</td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td>@Model.Date.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                </table>
+            </fieldset>
+
+            <fieldset class="record-group-section">
+                <legend>2. Payee Information</legend>
+                <table>
+                    <tr>
+                        <td>Payee</td>
+                        <td>@Model.Payee</td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>@Model.Address</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>@Model.Description</td>
+                    </tr>
+                </table>
+            </fieldset>
+
+            <fieldset class="record-group-section">
+                <legend>3. Financial & Deduction Details</legend>
+                <table>
+                    <tr class="highlight-row">
+                        <td>Gross Amount</td>
+                        <td>₦@grossAmount.ToString("N2")</td>
+                    </tr>
+
+                    <tr>
+                        <td>FGN VAT</td>
+                        <td>₦@Model.VAT.ToString("N2")</td>
+                    </tr>
+
+                    <tr>
+                        <td>Contract Amount</td>
+                        <td>₦@Model.Amount.ToString("N2")</td>
+                    </tr>
+
+                    <tr>
+                        <td>FGN WHT</td>
+                        <td>₦@Model.FGN_WHT.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>EDG WHT</td>
+                        <td>₦@Model.EDG_WHT.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>Stamp Duty</td>
+                        <td>₦@Model.StampDuty.ToString("N2")</td>
+                    </tr>
+
+                    <tr class="highlight-row">
+                        <td>Net Amount</td>
+                        <td>₦@Model.TotalAmount.ToString("N2")</td>
+                    </tr>
+                </table>
+            </fieldset>
+
+            <div class="button-area">
+                <a href="/Voucher/Edit/@Model.Id" class="edit-btn">Edit</a>
+                <a href="/Voucher/Close" class="close-btn">Close</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

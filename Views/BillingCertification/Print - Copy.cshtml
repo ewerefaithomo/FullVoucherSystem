@@ -1,0 +1,503 @@
+﻿@model FullVoucherSystem.Models.BillingCertification
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>UBTH Payment Voucher</title>
+
+    <style>
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #000;
+            margin: 4mm;
+        }
+
+        .voucher-container {
+            width: 100%;
+        }
+
+        .hospital {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid #000;
+            padding: 4px;
+            vertical-align: top;
+        }
+
+        .no-border {
+            border: none !important;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .code-box {
+            text-align: center;
+            font-weight: bold;
+            width: 25px;
+        }
+
+        .description-row {
+            height: 80px;
+        }
+
+        .signature-space {
+            height: 50px;
+        }
+
+        .certificate {
+            border: 1px solid #000;
+            padding: 8px;
+            min-height: 100px;
+            text-align: justify;
+        }
+
+        .amount-words {
+            border: 1px solid #000;
+            padding: 6px;
+            min-height: 45px;
+            font-weight: bold;
+        }
+
+        .advance-box {
+            border: 1px solid #000;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        @@media print {
+
+            .print-btn {
+                display: none;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            @@page {
+                size: A4 portrait;
+                margin: 5mm;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <button class="print-btn" onclick="window.print()">
+        Print Voucher
+    </button>
+
+    <div class="voucher-container">
+
+        <div class="hospital">
+            UNIVERSITY OF BENIN TEACHING HOSPITAL
+        </div>
+
+        <div class="title">
+            PAYMENT VOUCHER
+        </div>
+
+        <table>
+
+            <tr>
+                <td width="50%">
+                    <b>VOUCHER NO:</b>
+                    @Model.VoucherNumber
+                </td>
+
+                <td width="50%">
+                    <b>Checked and Passed for Payment at:</b>
+                    @Model.CheckedLocation
+                </td>
+            </tr>
+
+        </table>
+
+        <table>
+
+            <tr>
+
+                <td width="20%">
+                    <b>Station:</b>
+                    @Model.Station
+                </td>
+
+                <td width="20%">
+                    <b>Head:</b>
+                    @Model.Head
+                </td>
+
+                <td width="20%">
+                    <b>S/Head:</b>
+                    @Model.SubHead
+                </td>
+
+                <td width="40%">
+                    <b>Date:</b>
+                    @Model.Date.ToString("dd-MMM-yyyy")
+                </td>
+
+            </tr>
+
+        </table>
+
+        <table>
+
+            <tr>
+
+                <td width="30%">
+                    <b>Classification Code</b>
+                </td>
+
+                <td>
+                    @Model.ClassificationCode
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td>
+                    <b>Source Classification Code</b>
+                </td>
+
+                <td>
+                    @Model.SourceClassificationCode
+                </td>
+
+            </tr>
+
+        </table>
+
+        <table>
+
+            <tr>
+                <td width="15%">
+                    Payee:
+                </td>
+
+                <td>
+                    @Model.Payee
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Address:
+                </td>
+
+                <td>
+                    @Model.Address
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Payment For:
+                </td>
+
+                <td>
+                    @Model.Description
+                </td>
+            </tr>
+
+        </table>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th width="15%">
+                        Date
+                    </th>
+
+                    <th>
+                        Detailed Description of Service / Work
+                    </th>
+
+                    <th width="20%">
+                        RATE N:K
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr class="description-row">
+
+                    <td>
+                        @Model.Date.ToString("dd-MMM-yyyy")
+                    </td>
+
+                    <td>
+                        @Model.Description
+                    </td>
+
+                    <td class="right">
+                        @Model.Amount.ToString("N2")
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+        <br />
+
+        <p>
+            I_____________________
+            <br />
+            Certify on honour that the above amount is
+            <br />
+            for the interest of the public service.
+        </p>
+
+        <table>
+
+            <tr>
+                <td>CONTRACT SUM</td>
+                <td class="right">@Model.Amount.ToString("N2")</td>
+            </tr>
+
+            <tr>
+                <td>LESS % FGN WHT</td>
+                <td class="right">@Model.FGN_WHT.ToString("N2")</td>
+            </tr>
+
+            <tr>
+                <td>LESS % EDG WHT</td>
+                <td class="right">@Model.EDG_WHT.ToString("N2")</td>
+            </tr>
+
+            <tr>
+                <td>LESS % VAT</td>
+                <td class="right">0.00</td>
+            </tr>
+
+            <tr>
+                <td>LESS % STAMP DUTY</td>
+                <td class="right">@Model.StampDuty.ToString("N2")</td>
+            </tr>
+
+            <tr>
+
+                <td class="bold">
+                    TOTAL:
+                </td>
+
+                <td class="right bold">
+                    @Model.TotalAmount.ToString("N2")
+                </td>
+
+            </tr>
+
+        </table>
+
+        <div class="amount-words">
+
+            Checked and Passed for Payment
+            (Insert Amount in Words)
+
+            <br /><br />
+
+            @ViewBag.AmountInWords
+
+        </div>
+
+        <br />
+
+        <table>
+
+            <tr>
+
+                <td width="50%">
+
+                    Payable at:
+                    @Model.CheckedLocation
+
+                    <br /><br />
+
+                    Signature:
+                    _______________________
+
+                    <br /><br />
+
+                    Name in Block Letters:
+                    @Model.Voucher_FirstName
+                    @Model.Voucher_Surname
+
+                </td>
+
+                <td width="50%">
+
+                    Checked By:
+                    @Model.Bill_FirstName
+                    @Model.Bill_Surname
+
+                    <br /><br />
+
+                    Signature:
+                    _______________________
+
+                </td>
+
+            </tr>
+
+        </table>
+
+        <div class="center bold">
+            CERTIFICATE
+        </div>
+
+        <div class="certificate">
+
+            I Certify the above amount is correct,
+            and was incurred under the authority quoted,
+            that the service has been duly performed;
+            that the rate/price charged is according to
+            regulations/contract and is fair and reasonable;
+            that the amount of
+
+            <b>
+                ₦@Model.TotalAmount.ToString("N2")
+            </b>
+
+            may be paid under the classification quoted.
+
+        </div>
+
+        <table>
+
+            <tr>
+
+                <td>
+
+                    Signature of Officer Controlling Expenditure
+
+                    <div class="signature-space"></div>
+
+                    Date:
+                    @Model.Date.ToString("dd-MMM-yyyy")
+
+                    <br />
+
+                    Place:
+                    @Model.Station
+
+                    <br />
+
+                    Designation:
+                    @Model.Bill_Designation
+
+                </td>
+
+            </tr>
+
+        </table>
+
+        <br />
+
+        <table>
+
+            <tr>
+
+                <td colspan="2">
+
+                    Received from UBTH the Sum of:
+                    @Model.TotalAmount.ToString("N2")
+
+                    <br />
+
+                    In full settlement of the Account.
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td width="50%">
+                    Place:
+                    @Model.Station
+                </td>
+
+                <td>
+                    Signature:
+                    ___________________
+                </td>
+
+            </tr>
+
+        </table>
+
+        <div class="advance-box">
+
+            <b>For Use in Payment of Advances</b>
+
+            <br /><br />
+
+            Certified the Advance of ___________________
+
+            Has been entered on 124(A)(B)
+
+            <br /><br />
+
+            Date: ____________
+
+            Voucher No: ____________
+
+            <br /><br />
+
+            Signature: __________________
+
+            <br /><br />
+
+            Name in Block Letters: __________________
+
+        </div>
+
+    </div>
+
+</body>
+</html>

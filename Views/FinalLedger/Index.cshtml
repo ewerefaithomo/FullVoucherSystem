@@ -1,0 +1,1483 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Final Ledger";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Final Ledger - UBTH Voucher Portal</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+
+        .btn-analysis {
+            background-color: #8a5a00;
+        }
+
+        .analysis-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f0f7f2;
+            border: 1px solid #d5e6da;
+            border-radius: 6px;
+        }
+
+            .analysis-summary strong {
+                color: #0b7a43;
+            }
+
+        .analysis-table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+            .analysis-table th {
+                background-color: #0b7a43;
+                color: white;
+                padding: 10px;
+                text-align: left;
+                position: static;
+            }
+
+            .analysis-table td {
+                padding: 9px;
+                border: 1px solid #ddd;
+            }
+
+            .analysis-table .amount {
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .analysis-table .grand-total td {
+                background: #e3f1e7;
+                font-weight: bold;
+                border-top: 2px solid #0b7a43;
+            }
+
+        .analysis-empty {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f8f4;
+            color: #1e3d2f;
+        }
+
+        .header {
+            background-color: white;
+            border-bottom: 5px solid #0b7a43;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .portal-title h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #0b7a43;
+        }
+
+        .container {
+            width: 98%;
+            margin: 20px auto;
+        }
+
+        .ledger-columns {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .column {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-top: 4px solid #0b7a43;
+        }
+
+        .column-title {
+            color: #0b7a43;
+            border-bottom: 2px solid #e2ece6;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: #f9fbf9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e2ece6;
+            align-items: flex-end;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+            .filter-row label {
+                font-weight: bold;
+                font-size: 13px;
+            }
+
+            .filter-row select,
+            .filter-row input {
+                padding: 7px 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                min-width: 150px;
+                box-sizing: border-box;
+            }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            font-size: 13px;
+        }
+
+        .btn-search {
+            background-color: #0b7a43;
+        }
+
+        .btn-excel {
+            background-color: #1d6f42;
+        }
+
+        .btn-pdf {
+            background-color: #b82c2c;
+        }
+
+        .btn-chart {
+            background-color: #2b5b84;
+        }
+
+        .btn-reset {
+            background-color: #59636e;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .table-responsive {
+            overflow: auto;
+            max-height: 500px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 1200px;
+        }
+
+        th {
+            background-color: #0b7a43;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .status-message {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background: #e8f5ec;
+            color: #14532d;
+        }
+
+            .status-message.error {
+                background: #fdecec;
+                color: #8b1e1e;
+            }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 60%;
+            max-width: 900px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #aaa;
+        }
+
+            .close-btn:hover {
+                color: black;
+            }
+
+        @@media (max-width: 768px) {
+            .header {
+                padding: 15px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .portal-title h1 {
+                font-size: 20px;
+            }
+
+            .column {
+                padding: 12px;
+            }
+
+            .filter-row,
+            .filter-row select,
+            .filter-row input {
+                width: 100%;
+            }
+
+            .filter-group {
+                align-items: stretch;
+            }
+
+            .modal-content {
+                width: 90%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="portal-title">
+            <h1>University of Benin Teaching Hospital - Final Ledger</h1>
+        </div>
+
+        <div>
+            <a href="@Url.Action("Index", "Dashboard")"
+               style="background:#0b7a43;color:white;padding:8px 15px;border-radius:4px;text-decoration:none;font-weight:bold;">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="ledger-columns">
+
+            <!-- RAISED VOUCHERS: FILTERS UNCHANGED -->
+            <div class="column">
+                <h2 class="column-title">Raised Vouchers</h2>
+
+                <div class="filter-group">
+                    <div class="filter-row">
+                        <label for="raisedType">Voucher Type:</label>
+                        <select id="raisedType">
+                            <option value="S">S</option>
+                            <option value="SA">SA</option>
+                            <option value="SA-2">SA-2</option>
+                            <option value="E">E</option>
+                            <option value="EE">EE</option>
+                            <option value="ES">ES</option>
+                            <option value="EL">EL</option>
+                            <option value="EP">EP</option>
+                            <option value="ER">ER</option>
+                            <option value="ICH">ICH</option>
+                            <option value="C">C</option>
+                            <option value="ALL Es">ALL Es</option>
+                            <option value="ALL TYPES" selected>ALL TYPES</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="raisedStartDate">Start Date:</label>
+                        <input type="date" id="raisedStartDate" />
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="raisedEndDate">End Date:</label>
+                        <input type="date" id="raisedEndDate" />
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-search"
+                                onclick="searchRaised()">
+                            Search
+                        </button>
+
+                        <button type="button" class="btn btn-excel"
+                                onclick="exportExcel('raisedTable', 'Raised_Vouchers')">
+                            Export to Excel
+                        </button>
+
+                        <button type="button" class="btn btn-pdf"
+                                onclick="exportPDF('raisedPrintArea', 'Raised_Vouchers')">
+                            Export to PDF
+                        </button>
+
+                        <button type="button" class="btn btn-analysis"
+                                onclick="openAnalysedReport('raised')">
+                            Analysed Report
+                        </button>
+                        
+                        <button type="button" class="btn btn-chart"
+                                onclick="openChartModal('raised')">
+                            View Chart
+                        </button>
+                    </div>
+                </div>
+
+                <div id="raisedStatus" class="status-message"></div>
+
+                <div class="table-responsive" id="raisedPrintArea">
+                    <table id="raisedTable">
+                        <thead>
+                            <tr>
+                                <th>Voucher No</th>
+                                <th>Date Raised</th>
+                                <th>Payee</th>
+                                <th>Class Code</th>
+                                <th>Gross Amount</th>
+                                <th>Contract Amount</th>
+                                <th>VAT</th>
+                                <th>FGN_WHT</th>
+                                <th>EDG_WHT</th>
+                                <th>Stamp Duty</th>
+                                <th>Net Amount</th>
+                                <th>Paid Date</th>
+                                <th>Batch No</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="14" style="text-align:center;">
+                                    No search performed yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PAID VOUCHERS: NEW FUNDING ACCOUNT AND BATCH FILTERS -->
+            <div class="column">
+                <h2 class="column-title">Paid Vouchers</h2>
+
+                <div class="filter-group">
+                    <div class="filter-row">
+                        <label for="paidType">Voucher Type:</label>
+                        <select id="paidType">
+                            <option value="S">S</option>
+                            <option value="SA">SA</option>
+                            <option value="SA-2">SA-2</option>
+                            <option value="E">E</option>
+                            <option value="EE">EE</option>
+                            <option value="ES">ES</option>
+                            <option value="EL">EL</option>
+                            <option value="EP">EP</option>
+                            <option value="ER">ER</option>
+                            <option value="ICH">ICH</option>
+                            <option value="C">C</option>
+                            <option value="ALL Es">ALL Es</option>
+                            <option value="ALL TYPES" selected>ALL TYPES</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="paidFundingAccount">Funding Account:</label>
+                        <select id="paidFundingAccount">
+                            <option value="ALL" selected>ALL ACCOUNTS</option>
+                            <option value="DRF">DRF</option>
+                            <option value="DFR">DFR</option>
+                            <option value="MISCELLANEOUS">MISCELLANEOUS</option>
+                            <option value="NHIA">NHIA</option>
+                            <option value="SCHOOLS">SCHOOLS</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="paidBatchNo">Batch No:</label>
+                        <input type="text" id="paidBatchNo"
+                               placeholder="Enter batch number" />
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="paidStartDate">Start Date:</label>
+                        <input type="date" id="paidStartDate" />
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="paidEndDate">End Date:</label>
+                        <input type="date" id="paidEndDate" />
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-search"
+                                onclick="searchPaid()">
+                            Search
+                        </button>
+
+                        <button type="button" class="btn btn-reset"
+                                onclick="resetPaidFilters()">
+                            Reset Filters
+                        </button>
+
+                        <button type="button" class="btn btn-excel"
+                                onclick="exportExcel('paidTable', 'Paid_Vouchers')">
+                            Export to Excel
+                        </button>
+
+                        <button type="button" class="btn btn-pdf"
+                                onclick="exportPDF('paidPrintArea', 'Paid_Vouchers')">
+                            Export to PDF
+                        </button>
+
+                        
+
+                        <button type="button" class="btn btn-analysis"
+                                onclick="openAnalysedReport('paid')">
+                            Analysed Report
+                        </button>
+                        
+                        <button type="button" class="btn btn-chart"
+                                onclick="openChartModal('paid')">
+                            View Chart
+                        </button>
+                    </div>
+                </div>
+
+                <div id="paidStatus" class="status-message"></div>
+
+                <div class="table-responsive" id="paidPrintArea">
+                    <table id="paidTable">
+                        <thead>
+                            <tr>
+                                <th>Voucher No</th>
+                                <th>Date Raised</th>
+                                <th>Payee</th>
+                                <th>Class Code</th>
+                                <th>Gross Amount</th>
+                                <th>Contract Amount</th>
+                                <th>VAT</th>
+                                <th>FGN_WHT</th>
+                                <th>EDG_WHT</th>
+                                <th>Stamp Duty</th>
+                                <th>Net Amount</th>
+                                <th>Paid Date</th>
+                                <th>Funding Account</th>
+                                <th>Batch No</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="13" style="text-align:center;">
+                                    No search performed yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CHART MODAL -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeChartModal()">&times;</span>
+
+            <h3 id="chartModalTitle">
+                Classification Code Frequency Analysis
+            </h3>
+
+            <div style="margin-bottom:15px;">
+                <label for="chartTypeSelect">Select Chart Type:</label>
+                <select id="chartTypeSelect" onchange="changeChartType()">
+                    <option value="bar">Bar Chart</option>
+                    <option value="pie">Pie Chart</option>
+                    <option value="line">Line Chart</option>
+                    <option value="doughnut">Doughnut Chart</option>
+                    <option value="polarArea">Polar Area</option>
+                </select>
+            </div>
+
+            <div style="height:350px;">
+                <canvas id="ledgerChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ANALYSED REPORT MODAL -->
+    <div id="analysisModal" class="modal">
+        <div class="modal-content" style="width:90%;max-width:1100px;">
+            <span class="close-btn"
+                  onclick="closeAnalysedReport()">&times;</span>
+
+            <h3 id="analysisModalTitle"
+                style="color:#0b7a43;margin-top:0;">
+                Classification Code Analysed Report
+            </h3>
+
+            <div id="analysisCriteria"
+                 style="margin-bottom:12px;color:#555;">
+            </div>
+
+            <div class="analysis-summary">
+                <div>
+                    <strong>Vouchers:</strong>
+                    <span id="analysisVoucherCount">0</span>
+                </div>
+
+                <div>
+                    <strong>Classification Codes:</strong>
+                    <span id="analysisCodeCount">0</span>
+                </div>
+
+                <div>
+                    <strong>Grand Total (₦):</strong>
+                    <span id="analysisGrandTotal">0.00</span>
+                </div>
+            </div>
+
+            <div class="table-responsive" id="analysisPrintArea">
+                <table class="analysis-table" id="analysisTable">
+                    <thead>
+                        <tr>
+                            <th>S/N</th>
+                            <th>Classification Code</th>
+                            <th>Classification Name</th>
+                            <th>Voucher Count</th>
+                            <th style="text-align:right;">
+                                Total Amount (₦)
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="analysisTableBody">
+                        <tr>
+                            <td colspan="5" class="analysis-empty">
+                                No report generated.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot>
+                        <tr class="grand-total">
+                            <td colspan="3">GRAND TOTAL</td>
+                            <td id="analysisTotalCount">0</td>
+                            <td id="analysisFooterTotal"
+                                class="amount">
+                                ₦0.00
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="btn-group" style="margin-top:15px;">
+                <button type="button" class="btn btn-excel"
+                        onclick="exportExcel('analysisTable','Classification_Analysed_Report')">
+                    Export Report to Excel
+                </button>
+
+                <button type="button" class="btn btn-pdf"
+                        onclick="exportPDF('analysisPrintArea','Classification_Analysed_Report')">
+                    Export Report to PDF
+                </button>
+
+                <button type="button" class="btn btn-reset"
+                        onclick="closeAnalysedReport()">
+                    Close Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let raisedDataCache = [];
+        let paidDataCache = [];
+        let activeChart = null;
+        let currentChartData = [];
+
+        function getVal(item, keys, defaultVal = 0) {
+            for (const key of keys) {
+                if (item[key] !== undefined && item[key] !== null) {
+                    return item[key];
+                }
+            }
+
+            return defaultVal;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function toNumber(value) {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : 0;
+        }
+
+        function formatAmount(value) {
+            return toNumber(value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatDate(value) {
+            if (!value) return "";
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) return "";
+
+            return date.toLocaleDateString();
+        }
+
+
+
+                // ============================================================
+        // CLASSIFICATION CODE NAMES
+        // Codes are deliberately stored as strings to preserve codes
+        // containing decimal points, including .10, .11, .12, etc.
+        // ============================================================
+
+        const classificationNames = {
+            "21010102": "OVERTIME PAYMENTS",
+            "21020101": "NON REGULAR ALLOWANCES (UNIFORM ALLOWANCES, NYSC ALLOWANCES)",
+            "22010103": "DEATH BENEFITS",
+            "22020101": "LOCAL TRAVEL & TRANSPORT: TRAINING",
+            "22020102": "LOCAL TRAVEL & TRANSPORT: OTHERS",
+            "22020103": "INTERNATIONAL TRAVEL & TRANSPORT: TRAINING",
+            "22020201": "ELECTRICITY CHARGES",
+            "22020202": "TELEPHONE CHARGES",
+            "22020203": "INTERNET ACCESS CHARGES",
+            "22020301": "OFFICE STATIONERIES / COMPUTER CONSUMABLES",
+            "22020303": "NEWSPAPERS",
+            "22020304": "MAGAZINES & PERIODICALS",
+            "22020305": "PRINTING OF NON SECURITY DOCUMENTS",
+            "22020307.1": "DRUGS",
+            "22020307.2": "BLOOD TRANSFUSION/ HEAMATOLOGY",
+            "22020307.3": "CHEMICAL PATHOLOGY",
+            "22020307.4": "ELECTROCARDIOGRAM (E.C.G.)",
+            "22020307.6": "MICROBIOLOGY",
+            "22020307.7": "MORBID ANATOMY & MORTUARY",
+            "22020307.9": "O&G CONSUMABLES",
+            "22020307.10": "LABORATORY/MEDICAL EQUIPTMENT & REAGENTS",
+            "22020307.11": "OPTHAMOLOGY MATERIALS",
+            "22020307.12": "X-RAY CONSUMABLES & MATERIALS",
+            "22020307.13": "SANITARY/CLEANING MATERIALS",
+            "22020307.14": "BEDDING/LINEN/LAUNDRY CONSUMABLES",
+            "22020307.15": "LAUNDRY CONSUMABLES",
+            "22020307.16": "OCCUPATIONAL THERAPY MATERIALS",
+            "22020307.19": "THEATRE/SURGICAL EQUIPTMENT & MATERIALS",
+            "22020307.21": "DENTAL STORES & CONSUMABLES",
+            "22020307.22": "RENAL STORES & CONSUMABLES",
+            "22020307.23": "DRESSING/MEDICAL STORES",
+            "22020307.24": "ANAESTHESOLOGY MATERIALS",
+            "22020307.25": "PHYSIOTHERAPY MATERIALS",
+            "22020307.28": "MEDICAL GASES",
+            "22020307.29": "OTHER MATERIALS & SUPPLIES",
+            "22020307.31": "CHC OGBONNA",
+            "22020307.32": "CHC UDO",
+            "22020309": "UNIFORMS & OTHER CLOTHING",
+            "22020311": "FOOD STUFF / CATERING MATERIALS SUPPLIES",
+            "22020401": "MAINTENANCE OF MOTOR VEHICLE / TRANSPORT EQUIPMENT",
+            "22020402": "MAINTENANCE OF OFFICE FURNITURE",
+            "22020403": "MAINTENANCE OF OFFICE BUILDING / RESIDENTIAL QTRS",
+            "22020404": "MAINTENANCE OF OFFICE / IT EQUIPMENTS",
+            "22020405": "MAINTENANCE OF PLANTS/GENERATORS",
+            "22020406": "OTHER MAINTENANCE SERVICES",
+            "22020406.2": "MAINTENANCE OF FURNITURE & FITTINGS (WARDS & CLINIC)",
+            "22020406.3": "MAINTENANCE OF FURNITURE & FITTINGS (HOSTEL)",
+            "22020406.4": "ELECTRICAL INSTALLATION & MAINTENANCE",
+            "22020406.5": "ENGINEERING STORE, SUPPLIES & SPARE-PARTS",
+            "22020406.6": "LAUNDRY EQUIPTMENT MAINTENANCE",
+            "22020406.7": "MAINTENANCE OF BORE HOLES",
+            "22020406.8": "MAINTENANCE OF PRINTING MACHINE",
+            "22020406.9": "RADIOLOGY MONITORING",
+            "22020406.10": "MAINTENANCE OF HOSPITAL EQUIPMENT",
+            "22020406.11": "MAINTENANCE OF SEWAGE LINES",
+            "22020406.12": "OTHERS",
+            "22020501.1": "LOCAL TRAINING",
+            "22020501.2": "ACCREDITATION EXPENSES (MEDICAL & DENTAL)",
+            "22020501.3": "POST GRADUATE EDUCATION (RESIDENCY)/RESEARCH GRANT & EXPENSES",
+            "22020501.4": "COLLEGE OF NURSING SCIENCES",
+            "22020501.11": "CHILDREN PLAY CENTRE",
+            "22020501.12": "INSTITUTE OF HEALTH SCIENCES & TECHNOLOGY",
+            "22020601": "SECURITY SERVICES",
+            "22020604": "SECURITY VOTE (INCLUDING OPERATIONS)",
+            "22020605.1": "CLEANING & FUMIGATION SERVICES",
+            "22020605.2": "OUTSOURCED SERVICES",
+            "22020701": "FINANCIAL CONSULTING",
+            "22020702": "INFORMATION TECHNOLOGY CONSULTING",
+            "22020703": "LEGAL SERVICES",
+            "22020704": "ENGINEERING SERVICES",
+            "22020708": "MEDICAL CONSULTING",
+            "22020801": "MOTOR VEHICLE FUEL COST",
+            "22020803": "PLANT / GENERATOR FUEL COST",
+            "22020803.2": "SUPPLY OF ENGINE OIL/LUBRICANTS",
+            "22020806": "COOKING GAS/FUEL COST",
+            "22020902": "INSURANCE PREMIUM",
+            "22021001": "REFRESHMENT & MEALS",
+            "22021002.1": "HONORARIUM & SITTING ALLOWANCE",
+            "22021002.2": "BOARD OF MANAGEMENT EXPENSES - ALLOWANCE, BOARD & LODGING",
+            "22021002.3": "SUPERVISION AND INSPECTION FEES",
+            "22021003": "PUBLICITY & ADVERTISEMENTS",
+            "22021004": "MEDICAL EXPENSES",
+            "22021006": "POSTAGES & COURIER SERVICES",
+            "22021007.1": "WELFARE PACKAGES",
+            "22021007.3": "HOSPITALITY & ENTERTAINMENT",
+            "22021007.4": "DONATION & CONTRIBUTIONS",
+            "22021008": "SUBSCRIPTION TO PROFESSIONAL BODIES",
+            "22021009": "SPORTING ACTIVITIES",
+            "22021011": "RECRUITMENT AND APPOINTMENT (SERVICE WIDE)",
+            "22021013": "PROMOTION (SERVICE WIDE)",
+            "22021014": "ANNUAL BUDGET EXPENSES & ADMINISTRATION",
+            "22021041": "CONTIGENCY",
+            "23050101": "RESEARCH AND DEVELOPMENT",
+            "31040102": "INTER-ACCOUNT TRANSFER",
+            "31040104": "REVENUE REMITTANCE",
+            "31060101": "IMPREST",
+            "31060301": "SPECIAL IMPREST (SERVICE WIDE)",
+            "00000000": "UNPAID VOUCHERS"
+        };
+
+
+        // Normalise a code without converting it to a number.
+        // This preserves trailing digits such as .10 and .11.
+        function normaliseClassificationCode(value) {
+            return String(value ?? "").trim();
+        }
+
+
+        // Return the correct amount field from a voucher.
+        // TotalAmount represents the net amount in this application.
+        function getVoucherNetAmount(item) {
+            return toNumber(
+                getVal(item, ["totalAmount", "TotalAmount"], 0)
+            );
+        }
+
+
+        // Use the current search results to generate the report.
+
+        async function openAnalysedReport(source) {
+            const isRaised = source === "raised";
+            let data;
+
+            if (isRaised) {
+                data = raisedDataCache;
+            } else {
+                const sDate =
+                    document.getElementById("paidStartDate").value;
+                const eDate =
+                    document.getElementById("paidEndDate").value;
+
+                if (sDate && eDate && sDate > eDate) {
+                    alert("Start Date cannot be later than End Date.");
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    voucherType:
+                        document.getElementById("paidType").value,
+                    fundingAccount:
+                        document.getElementById("paidFundingAccount").value,
+                    batchNo:
+                        document.getElementById("paidBatchNo").value.trim(),
+                    startDate: sDate,
+                    endDate: eDate
+                });
+
+                try {
+                    const response = await fetch(
+                        "/FinalLedger/SearchPaidVouchersForAnalysis",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded"
+                            },
+                            body: params.toString()
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Unable to retrieve paid vouchers from Final_Ledger and Advances."
+                        );
+                    }
+
+                    data = await response.json();
+                } catch (error) {
+                    alert(
+                        error.message ||
+                        "An error occurred while generating the analysed report."
+                    );
+                    return;
+                }
+            }
+
+            if (!Array.isArray(data) || data.length === 0) {
+                alert(
+                    "No voucher records were found for the selected search criteria."
+                );
+                return;
+            }
+
+            const groups = new Map();
+            let grandTotal = 0;
+
+            data.forEach(item => {
+                const rawCode = getVal(
+                    item,
+                    ["classificationCode", "ClassificationCode"],
+                    ""
+                );
+
+                const code = normaliseClassificationCode(rawCode);
+                const key = code || "UNCLASSIFIED";
+
+                const amount = getVoucherNetAmount(item);
+
+                if (!groups.has(key)) {
+                    groups.set(key, {
+                        code: code || "Unclassified",
+                        name: classificationNames[code] ||
+                            (code
+                                ? "Classification name not supplied"
+                                : "Unclassified"),
+                        count: 0,
+                        amount: 0
+                    });
+                }
+
+                const group = groups.get(key);
+                group.count += 1;
+                group.amount += amount;
+                grandTotal += amount;
+            });
+
+            const reportRows = Array.from(groups.values())
+                .sort((a, b) => a.code.localeCompare(
+                    b.code,
+                    undefined,
+                    { numeric: true, sensitivity: "base" }
+                ));
+
+            document.getElementById("analysisModalTitle").textContent =
+                isRaised
+                    ? "Raised Vouchers - Classification Code Analysed Report"
+                    : "Paid Vouchers - Classification Code Analysed Report";
+
+            document.getElementById("analysisCriteria").textContent =
+                buildAnalysisCriteria(source);
+
+            document.getElementById("analysisVoucherCount").textContent =
+                data.length.toLocaleString();
+
+            document.getElementById("analysisCodeCount").textContent =
+                reportRows.length.toLocaleString();
+
+            document.getElementById("analysisGrandTotal").textContent =
+                "₦" + formatAmount(grandTotal);
+
+            document.getElementById("analysisTotalCount").textContent =
+                data.length.toLocaleString();
+
+            document.getElementById("analysisFooterTotal").textContent =
+                "₦" + formatAmount(grandTotal);
+
+            const tbody = document.getElementById("analysisTableBody");
+
+            tbody.innerHTML = reportRows.map((row, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHtml(row.code)}</td>
+                    <td>${escapeHtml(row.name)}</td>
+                    <td>${row.count.toLocaleString()}</td>
+                    <td class="amount">₦${formatAmount(row.amount)}</td>
+                </tr>
+            `).join("");
+
+            document.getElementById("analysisModal").style.display = "block";
+        }
+
+
+        // Show the search criteria used to produce the report.
+        function buildAnalysisCriteria(source) {
+            if (source === "raised") {
+                const type = document.getElementById("raisedType").value;
+                const startDate = document.getElementById("raisedStartDate").value;
+                const endDate = document.getElementById("raisedEndDate").value;
+
+                return [
+                    "Voucher Type: " + type,
+                    "Start Date: " + (startDate || "All dates"),
+                    "End Date: " + (endDate || "All dates")
+                ].join(" | ");
+            }
+
+            const type = document.getElementById("paidType").value;
+            const account = document.getElementById("paidFundingAccount").value;
+            const batch = document.getElementById("paidBatchNo").value.trim();
+            const startDate = document.getElementById("paidStartDate").value;
+            const endDate = document.getElementById("paidEndDate").value;
+
+            return [
+                "Voucher Type: " + type,
+                "Funding Account: " + account,
+                "Batch No: " + (batch || "All batches"),
+                "Start Date: " + (startDate || "All dates"),
+                "End Date: " + (endDate || "All dates")
+            ].join(" | ");
+        }
+
+
+        function closeAnalysedReport() {
+            document.getElementById("analysisModal").style.display = "none";
+        }
+
+
+        function showStatus(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+
+            element.textContent = message;
+            element.classList.toggle("error", isError);
+            element.style.display = "block";
+        }
+
+        function clearStatus(elementId) {
+            const element = document.getElementById(elementId);
+            element.textContent = "";
+            element.style.display = "none";
+            element.classList.remove("error");
+        }
+
+        // Raised Vouchers: existing filters and search behaviour.
+        async function searchRaised() {
+            const vType = document.getElementById("raisedType").value;
+            const sDate = document.getElementById("raisedStartDate").value;
+            const eDate = document.getElementById("raisedEndDate").value;
+
+            if (sDate && eDate && sDate > eDate) {
+                showStatus(
+                    "raisedStatus",
+                    "Start Date cannot be later than End Date.",
+                    true
+                );
+                return;
+            }
+
+            clearStatus("raisedStatus");
+
+            const params = new URLSearchParams({
+                voucherType: vType,
+                startDate: sDate,
+                endDate: eDate
+            });
+
+            try {
+                const response = await fetch(
+                    "/FinalLedger/SearchRaisedVouchers",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+                        body: params.toString()
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("The raised-voucher search failed.");
+                }
+
+                const data = await response.json();
+
+                raisedDataCache = data;
+                renderVoucherTable("raisedTable", data, false);
+                showStatus(
+                    "raisedStatus",
+                    `${data.length} raised voucher(s) found.`
+                );
+            } catch (error) {
+                showStatus(
+                    "raisedStatus",
+                    error.message || "Unable to search raised vouchers.",
+                    true
+                );
+            }
+        }
+
+        // Paid Vouchers: searches by all supplied filters.
+        async function searchPaid() {
+            const vType = document.getElementById("paidType").value;
+            const fundingAccount =
+                document.getElementById("paidFundingAccount").value;
+            const batchNo =
+                document.getElementById("paidBatchNo").value.trim();
+            const sDate = document.getElementById("paidStartDate").value;
+            const eDate = document.getElementById("paidEndDate").value;
+
+            if (sDate && eDate && sDate > eDate) {
+                showStatus(
+                    "paidStatus",
+                    "Start Date cannot be later than End Date.",
+                    true
+                );
+                return;
+            }
+
+            clearStatus("paidStatus");
+
+            const params = new URLSearchParams({
+                voucherType: vType,
+                fundingAccount: fundingAccount,
+                batchNo: batchNo,
+                startDate: sDate,
+                endDate: eDate
+            });
+
+            try {
+                const response = await fetch(
+                    "/FinalLedger/SearchPaidVouchers",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+                        body: params.toString()
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("The paid-voucher search failed.");
+                }
+
+                const data = await response.json();
+
+                paidDataCache = data;
+                renderVoucherTable("paidTable", data, true);
+                showStatus(
+                    "paidStatus",
+                    `${data.length} paid voucher(s) found.`
+                );
+            } catch (error) {
+                showStatus(
+                    "paidStatus",
+                    error.message || "Unable to search paid vouchers.",
+                    true
+                );
+            }
+        }
+
+        // Renders either raised or paid voucher results.
+                function renderVoucherTable(tableId, data, isPaid) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            tbody.innerHTML = "";
+
+            // Raised Vouchers: 13 columns.
+            // Paid Vouchers: 14 columns, including Funding Account.
+            const columnCount = isPaid ? 14 : 13;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${columnCount}" style="text-align:center;">
+                            No matching records found.
+                        </td>
+                    </tr>`;
+
+                return;
+            }
+
+            const rows = data.map(item => {
+                const contractAmount = toNumber(
+                    getVal(item, ["amount", "Amount"], 0)
+                );
+
+                const vat = toNumber(
+                    getVal(item, ["vat", "VAT"], 0)
+                );
+
+                const fgn = toNumber(
+                    getVal(
+                        item,
+                        ["fgN_WHT", "fgn_WHT", "FGN_WHT"],
+                        0
+                    )
+                );
+
+                const edg = toNumber(
+                    getVal(
+                        item,
+                        ["edG_WHT", "edg_WHT", "EDG_WHT"],
+                        0
+                    )
+                );
+
+                const stamp = toNumber(
+                    getVal(item, ["stampDuty", "StampDuty"], 0)
+                );
+
+                const netAmount = toNumber(
+                    getVal(
+                        item,
+                        ["totalAmount", "TotalAmount"],
+                        contractAmount
+                    )
+                );
+
+                const grossAmount = contractAmount + vat;
+
+                const voucherNumber = escapeHtml(
+                    getVal(
+                        item,
+                        ["voucherNumber", "VoucherNumber"],
+                        ""
+                    )
+                );
+
+                const payee = escapeHtml(
+                    getVal(item, ["payee", "Payee"], "")
+                );
+
+                const classificationCode = escapeHtml(
+                    getVal(
+                        item,
+                        ["classificationCode", "ClassificationCode"],
+                        ""
+                    )
+                );
+
+                const dateRaised = formatDate(
+                    getVal(item, ["date", "Date"], null)
+                );
+
+                let paidDate = "";
+                let fundingAccount = "";
+                let batchNo = "";
+
+                if (isPaid) {
+                    const rawProcessed = getVal(
+                        item,
+                        ["processedDate", "ProcessedDate"],
+                        null
+                    );
+
+                    paidDate = rawProcessed
+                        ? formatDate(rawProcessed)
+                        : "";
+
+                    // Retrieve Funding Account from the JSON record.
+                    fundingAccount = escapeHtml(
+                        getVal(
+                            item,
+                            ["fundingAccount", "FundingAccount"],
+                            ""
+                        )
+                    );
+
+                    batchNo = escapeHtml(
+                        getVal(
+                            item,
+                            ["batch_No", "Batch_No", "batch_no"],
+                            ""
+                        )
+                    );
+                }
+
+                // Keep the Raised Vouchers columns unchanged.
+                if (!isPaid) {
+                    return `
+                        <tr>
+                            <td>${voucherNumber}</td>
+                            <td>${escapeHtml(dateRaised)}</td>
+                            <td>${payee}</td>
+                            <td>${classificationCode}</td>
+                            <td>${formatAmount(grossAmount)}</td>
+                            <td>${formatAmount(contractAmount)}</td>
+                            <td>${formatAmount(vat)}</td>
+                            <td>${formatAmount(fgn)}</td>
+                            <td>${formatAmount(edg)}</td>
+                            <td>${formatAmount(stamp)}</td>
+                            <td>${formatAmount(netAmount)}</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>`;
+                }
+
+                // Paid Vouchers includes Funding Account before Batch No.
+                return `
+                    <tr>
+                        <td>${voucherNumber}</td>
+                        <td>${escapeHtml(dateRaised)}</td>
+                        <td>${payee}</td>
+                        <td>${classificationCode}</td>
+                        <td>${formatAmount(grossAmount)}</td>
+                        <td>${formatAmount(contractAmount)}</td>
+                        <td>${formatAmount(vat)}</td>
+                        <td>${formatAmount(fgn)}</td>
+                        <td>${formatAmount(edg)}</td>
+                        <td>${formatAmount(stamp)}</td>
+                        <td>${formatAmount(netAmount)}</td>
+                        <td>${escapeHtml(paidDate)}</td>
+                        <td>${fundingAccount}</td>
+                        <td>${batchNo}</td>
+                    </tr>`;
+            });
+
+            tbody.innerHTML = rows.join("");
+        }
+
+        function resetPaidFilters() {
+            document.getElementById("paidType").value = "ALL TYPES";
+            document.getElementById("paidFundingAccount").value = "ALL";
+            document.getElementById("paidBatchNo").value = "";
+            document.getElementById("paidStartDate").value = "";
+            document.getElementById("paidEndDate").value = "";
+
+            clearStatus("paidStatus");
+            searchPaid();
+        }
+
+        // Excel export.
+        function exportExcel(tableId, fileName) {
+            const table = document.getElementById(tableId);
+
+            if (!table) {
+                alert("The selected table could not be found.");
+                return;
+            }
+
+            const workbook = XLSX.utils.table_to_book(
+                table,
+                { sheet: "Sheet1" }
+            );
+
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+        }
+
+        // PDF export.
+        function exportPDF(elementId, fileName) {
+            const element = document.getElementById(elementId);
+
+            if (!element) {
+                alert("The selected section could not be found.");
+                return;
+            }
+
+            const options = {
+                margin: 0.5,
+                filename: `${fileName}.pdf`,
+                image: {
+                    type: "jpeg",
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2
+                },
+                jsPDF: {
+                    unit: "in",
+                    format: "letter",
+                    orientation: "landscape"
+                }
+            };
+
+            html2pdf().set(options).from(element).save();
+        }
+
+        // Chart modal.
+        function openChartModal(source) {
+            currentChartData =
+                source === "raised" ? raisedDataCache : paidDataCache;
+
+            if (!currentChartData || currentChartData.length === 0) {
+                alert(
+                    "Please perform a search with records before viewing the chart."
+                );
+                return;
+            }
+
+            document.getElementById("chartModalTitle").textContent =
+                (source === "raised" ? "Raised Vouchers" : "Paid Vouchers") +
+                " - Classification Code Analysis";
+
+            document.getElementById("chartModal").style.display = "block";
+
+            document.getElementById("chartTypeSelect").value = "bar";
+            renderChart("bar");
+        }
+
+        function closeChartModal() {
+            document.getElementById("chartModal").style.display = "none";
+        }
+
+        function changeChartType() {
+            renderChart(
+                document.getElementById("chartTypeSelect").value
+            );
+        }
+
+        function renderChart(chartType) {
+            const codeCounts = {};
+
+            currentChartData.forEach(item => {
+                const code = getVal(
+                    item,
+                    ["classificationCode", "ClassificationCode"],
+                    "Unclassified"
+                ) || "Unclassified";
+
+                codeCounts[code] = (codeCounts[code] || 0) + 1;
+            });
+
+            const labels = Object.keys(codeCounts);
+            const counts = Object.values(codeCounts);
+
+            const backgroundColors = [
+                "#0b7a43", "#2b5b84", "#e67e22", "#9b59b6",
+                "#f1c40f", "#e74c3c", "#1abc9c", "#34495e",
+                "#d35400", "#7f8c8d"
+            ];
+
+            const canvas = document.getElementById("ledgerChart");
+            const context = canvas.getContext("2d");
+
+            if (activeChart) {
+                activeChart.destroy();
+            }
+
+            activeChart = new Chart(context, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Classification Code Frequency",
+                        data: counts,
+                        backgroundColor:
+                            chartType === "line"
+                                ? "rgba(11, 122, 67, 0.2)"
+                                : backgroundColors,
+                        borderColor: "#0b7a43",
+                        borderWidth: 1,
+                        fill: chartType === "line"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: chartType !== "bar"
+                        }
+                    },
+                    scales:
+                        chartType === "bar" || chartType === "line"
+                            ? {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                            : {}
+                }
+            });
+        }
+
+                // Close either modal when the user clicks outside its content.
+        window.addEventListener("click", function (event) {
+            const chartModal = document.getElementById("chartModal");
+            const analysisModal = document.getElementById("analysisModal");
+
+            if (event.target === chartModal) {
+                closeChartModal();
+            }
+
+            if (event.target === analysisModal) {
+                closeAnalysedReport();
+            }
+        });
+    </script>
+</body>
+</html>

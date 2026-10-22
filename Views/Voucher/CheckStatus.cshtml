@@ -1,0 +1,168 @@
+﻿@{
+    Layout = null;
+    string statusMessage = ViewBag.StatusMessage ?? "";
+    string voucherNumber = ViewBag.VoucherNumber ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voucher Stage Status - UBTH</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f8f4;
+            color: #1e3d2f;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            background-color: white;
+            border-bottom: 5px solid #0b7a43;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+            .header-left img {
+                width: 85px;
+                height: 85px;
+                object-fit: contain;
+                margin-right: 20px;
+            }
+
+        .portal-title {
+            color: #0b7a43;
+        }
+
+            .portal-title h1 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .portal-title p {
+                margin: 5px 0 0 0;
+                font-size: 14px;
+                color: #4b6354;
+            }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            border-top: 6px solid #0b7a43;
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #e8f5e9;
+            color: #0b7a43;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 20px auto;
+            font-weight: bold;
+        }
+
+        .modal-title {
+            color: #0b7a43;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eeeeee;
+        }
+
+        .btn-okay {
+            padding: 12px 35px;
+            background-color: #0b7a43;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+            .btn-okay:hover {
+                background-color: #085931;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <div class="header-left">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <div class="portal-title">
+                <h1>University of Benin Teaching Hospital</h1>
+                <p>Voucher Management Portal System</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centered Modal Status Container -->
+    <div class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">&#8505;</div>
+            <h3 class="modal-title">Voucher Location Information</h3>
+
+            <div class="modal-body">
+                <strong>Voucher Number: @voucherNumber</strong><br /><br />
+                @statusMessage
+            </div>
+
+            <a href="javascript:history.back()" class="btn-okay">Okay</a>
+        </div>
+    </div>
+
+</body>
+</html>

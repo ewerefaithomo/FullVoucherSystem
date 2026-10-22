@@ -1,0 +1,280 @@
+﻿@model FullVoucherSystem.Models.ImprestHolder
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imprest Holder Details - UBTH</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 3px solid #2e7d32;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 55px;
+                height: auto;
+            }
+
+            .logo-area h2 {
+                margin: 0 0 0 15px;
+                color: #2e7d32;
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+        .user-info {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 15px;
+            background-color: #e8f5e9;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .details-box {
+            background: #ffffff;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        .details-title {
+            text-align: center;
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+            .details-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60px;
+                height: 3px;
+                background-color: #2e7d32;
+                border-radius: 2px;
+            }
+
+        .section-box {
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px 22px 15px 22px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+        .section-title {
+            padding: 4px 12px;
+            color: #1b5e20;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: #ffffff;
+            border: 1px solid #a5d6a7;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .detail-item.full-width {
+                grid-column: span 2;
+            }
+
+        .detail-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #212121;
+            padding: 10px 12px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .actions-area {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-close {
+            padding: 12px 30px;
+            background-color: #616161;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+
+            .btn-close:hover {
+                background-color: #424242;
+            }
+
+        @@media (max-width: 600px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-item.full-width {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <h2>UBTH Voucher System</h2>
+        </div>
+
+        <div class="user-info">
+            @ViewBag.Surname @ViewBag.FirstName
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="details-box">
+            <h2 class="details-title">Imprest Holder Profile Details</h2>
+
+            <!-- Identification Section -->
+            <div class="section-box">
+                <span class="section-title">1. Identification Details</span>
+                <div class="details-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">Folio Number</span>
+                        <div class="detail-value">@Model.FolioNumber</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Staff ID</span>
+                        <div class="detail-value">@Model.StaffId</div>
+                    </div>
+
+                    <div class="detail-item full-width">
+                        <span class="detail-label">Staff Name</span>
+                        <div class="detail-value">@Model.StaffNames</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Designation</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.Designation) ? "N/A" : Model.Designation)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Department</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.Department) ? "N/A" : Model.Department)</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bank & Contact Section -->
+            <div class="section-box">
+                <span class="section-title">2. Bank & Contact Details</span>
+                <div class="details-grid">
+
+                    <div class="detail-item">
+                        <span class="detail-label">Bank Name</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.Bank) ? "N/A" : Model.Bank)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Account Name</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.AccountName) ? "N/A" : Model.AccountName)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Account Number</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.AccountNumber) ? "N/A" : Model.AccountNumber)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Phone Number</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</div>
+                    </div>
+
+                    <div class="detail-item full-width">
+                        <span class="detail-label">Email Address</span>
+                        <div class="detail-value">@(string.IsNullOrWhiteSpace(Model.Email) ? "N/A" : Model.Email)</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="actions-area">
+                <a href="javascript:history.back()" class="btn-close">Close</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

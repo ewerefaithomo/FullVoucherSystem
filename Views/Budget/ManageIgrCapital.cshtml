@@ -1,0 +1,393 @@
+﻿@model FullVoucherSystem.Models.IgrFundedCapitalBudgetViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "IGR Funded Capital Budget";
+
+    var surname = Context.Session.GetString("Surname");
+    var firstName = Context.Session.GetString("FirstName");
+}
+
+@using Microsoft.AspNetCore.Http
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>IGR Funded Capital - UBTH Budget Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f8f4;
+            color: #1e3d2f;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 5px solid #0b7a43;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .brand img {
+                width: 70px;
+                height: 70px;
+                object-fit: contain;
+            }
+
+            .brand h1 {
+                margin: 0;
+                font-size: 23px;
+                color: #0b7a43;
+            }
+
+            .brand p {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #4b6354;
+            }
+
+        .header-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+            .header-links a {
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+        .back-link {
+            color: #0b7a43;
+        }
+
+        .logout-link {
+            background: #b82c2c;
+            color: #fff;
+            padding: 9px 14px;
+            border-radius: 5px;
+        }
+
+        .container {
+            width: 96%;
+            max-width: 1500px;
+            margin: 25px auto;
+        }
+
+        .page-heading {
+            background: white;
+            border-left: 6px solid #0b7a43;
+            border-radius: 8px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.06);
+        }
+
+            .page-heading h2 {
+                color: #0b7a43;
+                margin: 0 0 8px;
+            }
+
+            .page-heading p {
+                color: #555;
+                margin: 0;
+                line-height: 1.5;
+            }
+
+        .message {
+            padding: 13px 16px;
+            border-radius: 5px;
+            margin-bottom: 18px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-radius: 5px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+        }
+
+        .table-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        thead th {
+            background: #0b7a43;
+            color: #fff;
+            text-align: left;
+            padding: 15px 14px;
+            font-size: 15px;
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e9e3;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f7faf7;
+        }
+
+        tbody tr:hover {
+            background: #edf6ef;
+        }
+
+        .code-column {
+            width: 150px;
+            white-space: nowrap;
+            font-weight: bold;
+            color: #28543a;
+        }
+
+        .amount-column {
+            width: 230px;
+        }
+
+        .amount-input {
+            width: 100%;
+            min-width: 160px;
+            padding: 10px;
+            border: 1px solid #b9c9bd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+            .amount-input:focus {
+                outline: 2px solid #9acba9;
+                border-color: #0b7a43;
+            }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .note {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            background: #0b7a43;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 13px 26px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .submit-button:hover {
+                background: #075b32;
+            }
+
+        .footer {
+            margin-top: 35px;
+            background: #0b7a43;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        @@media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+
+            .brand img {
+                width: 55px;
+                height: 55px;
+            }
+
+            .brand h1 {
+                font-size: 18px;
+            }
+
+            .brand p {
+                font-size: 12px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .table-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="brand">
+            <img src="@Url.Content("~/images/ubth-logo.jpeg")"
+                 alt="UBTH Logo" />
+
+            <div>
+                <h1>University of Benin Teaching Hospital</h1>
+                <p>Voucher Management Portal — Budget Management</p>
+            </div>
+        </div>
+
+        <div class="header-links">
+            <span>Welcome, <strong>@surname @firstName</strong></span>
+            <a class="back-link" href="/Dashboard/Index">Dashboard</a>
+            <a class="logout-link" href="/Account/Logout">Log Out</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="message" role="status">
+                @TempData["Message"]
+            </div>
+        }
+
+        <section class="page-heading">
+            <h2>IGR Funded Capital</h2>
+            <p>
+                Enter the approved budget amount for each applicable
+                classification. Leave an amount blank if you do not
+                wish to enter or update that classification.
+            </p>
+        </section>
+
+        <div asp-validation-summary="All" class="validation"></div>
+
+        <form asp-controller="Budget"
+              asp-action="ManageIgrCapital"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="table-card">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Classification Code</th>
+                                <th scope="col">IGR Funded Capital</th>
+                                <th scope="col">Budget Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (int i = 0; i < Model.Items.Count; i++)
+                            {
+                                <tr>
+                                    <td class="code-column">
+                                        @Model.Items[i].ClassificationCode
+
+                                        <input type="hidden"
+                                               name="Items[@i].ClassificationCode"
+                                               value="@Model.Items[i].ClassificationCode" />
+                                    </td>
+
+                                    <td>
+                                        @Model.Items[i].Description
+
+                                        <input type="hidden"
+                                               name="Items[@i].Description"
+                                               value="@Model.Items[i].Description" />
+                                    </td>
+
+                                    <td class="amount-column">
+                                        <input type="number"
+                                               class="amount-input"
+                                               name="Items[@i].BudgetAmount"
+                                               value="@Model.Items[i].BudgetAmount"
+                                               min="0"
+                                               max="999999999999999.99"
+                                               step="0.01"
+                                               inputmode="decimal"
+                                               placeholder="Enter budget amount"
+                                               aria-label="Budget amount for @Model.Items[i].Description" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div class="note">
+                        Enter amounts in naira (₦). Use figures only;
+                        commas and currency symbols are not required.
+                        Blank entries are not saved or used to erase existing amounts.
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        Submit Budget
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <footer class="footer">
+        UNIVERSITY OF BENIN TEACHING HOSPITAL
+        &copy; @DateTime.Now.Year Voucher Management System
+    </footer>
+
+</body>
+</html>

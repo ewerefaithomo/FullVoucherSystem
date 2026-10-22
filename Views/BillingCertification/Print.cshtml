@@ -1,0 +1,1529 @@
+﻿@model FullVoucherSystem.Models.BillingCertification
+
+@{
+    ViewData["Title"] = "Print Voucher";
+
+    Layout = null;
+}
+
+@functions {
+
+
+    public static string NumberToWords(long number)
+    {
+        if (number == 0)
+            return "ZERO";
+
+        if (number < 0)
+            return "MINUS " + NumberToWords(Math.Abs(number));
+
+        string words = "";
+
+        if ((number / 1000000000) > 0)
+        {
+            words += NumberToWords(number / 1000000000) + " BILLION ";
+            number %= 1000000000;
+        }
+
+        if ((number / 1000000) > 0)
+        {
+            words += NumberToWords(number / 1000000) + " MILLION ";
+            number %= 1000000;
+        }
+
+        if ((number / 1000) > 0)
+        {
+            words += NumberToWords(number / 1000) + " THOUSAND ";
+            number %= 1000;
+        }
+
+        if ((number / 100) > 0)
+        {
+            words += NumberToWords(number / 100) + " HUNDRED ";
+            number %= 100;
+        }
+
+        if (number > 0)
+        {
+            if (words != "")
+                words += "";
+
+            var unitsMap = new[]
+            {
+            "ZERO","ONE","TWO","THREE","FOUR","FIVE","SIX","SEVEN","EIGHT","NINE",
+            "TEN","ELEVEN","TWELVE","THIRTEEN","FOURTEEN","FIFTEEN","SIXTEEN",
+            "SEVENTEEN","EIGHTEEN","NINETEEN"
+        };
+
+            var tensMap = new[]
+            {
+            "ZERO","TEN","TWENTY","THIRTY","FORTY","FIFTY",
+            "SIXTY","SEVENTY","EIGHTY","NINETY"
+        };
+
+            if (number < 20)
+                words += unitsMap[number];
+            else
+            {
+                words += tensMap[number / 10];
+
+                if ((number % 10) > 0)
+                    words += " " + unitsMap[number % 10];
+            }
+        }
+
+        return words.Trim();
+    }
+
+
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PAYMENT VOUCHER</title>
+
+    <style>
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 20px;
+        }
+
+        .voucher {
+            border: none;
+            padding: 0;
+        }
+
+        .voucher-wrapper {
+            width: 190mm;
+            min-height: 277mm;
+            margin: 0 auto;
+            padding: 12mm;
+            border: 6px solid #000;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+
+        /* ==========================
+                           FONT STYLES
+                           ========================== */
+
+        /* Static text */
+        .label-text {
+            font-size: 26px;
+            font-weight: normal;
+        }
+
+        /* Data from BillingCertification table */
+        .model-data {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Headings */
+        .heading-text {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Special locations */
+        .location-text {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Certificate title */
+        .certificate-title {
+            font-size: 26px;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Total section */
+        .total-text {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Main voucher title */
+        .main-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        td {
+            border: 3px solid #000;
+            padding: 10px;
+        }
+
+        .print-button {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 26px;
+        }
+
+        table,
+        tr,
+        td,
+        th {
+            border-color: #000 !important;
+            border-width: 3px !important;
+        }
+
+        .voucher-wrapper {
+            border-color: #000 !important;
+        }
+
+        @@media print {
+
+            @@page {
+                size: A4 portrait;
+                margin: 5mm;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-button {
+                display: none !important;
+            }
+
+            .voucher-wrapper {
+                width: 100%;
+                min-height: auto;
+                margin: 0;
+                padding: 10mm;
+                border: 6px solid #000 !important;
+                box-sizing: border-box;
+                page-break-inside: avoid;
+            }
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 26px;
+        }
+
+        .left-header {
+            text-align: left;
+        }
+
+        .right-header {
+            text-align: right;
+        }
+
+        .voucher-body {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-weight: bold;
+            font-size: 26px;
+            padding-right: 10px;
+            text-align: center;
+            min-width: 30px;
+        }
+
+        .voucher-content {
+            flex: 1;
+        }
+
+        .voucher-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .advance-box {
+            width: 120px;
+            border: 3px solid #000;
+            padding: 5px;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+            .advance-box .title {
+                text-align: center;
+                font-weight: bold;
+                writing-mode: vertical-rl;
+                transform: rotate(180deg);
+                float: left;
+                margin-right: 5px;
+                height: 120px;
+            }
+
+        .advance-content {
+            margin-left: 20px;
+        }
+
+        .line {
+            display: block;
+            border-bottom: 3px solid #000;
+            height: 18px;
+            margin-bottom: 5px;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        /* ==========================
+                                   Treasury Classification Box
+                                   ========================== */
+
+        .treasury-section {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .treasury-grid {
+            border-collapse: collapse;
+            font-size: 30px;
+            table-layout: fixed;
+        }
+
+            .treasury-grid td,
+            .treasury-grid th {
+                border: 3px solid #000;
+                text-align: center;
+                padding: 2px;
+                height: 24px;
+            }
+
+        .digit-box {
+            width: 28px;
+            min-width: 28px;
+            max-width: 28px;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            padding: 2px;
+        }
+
+        .label-cell {
+            font-weight: bold;
+            text-align: center;
+            padding: 2px !important;
+        }
+
+        .station-grid {
+            border-collapse: collapse;
+            width: 240px;
+        }
+
+            .station-grid td {
+                border: 3px solid #000;
+                padding: 10px;
+                font-weight: bold;
+                font-size: 26px;
+            }
+
+        .amount-cell {
+            font-weight: bold;
+            font-size: 26px;
+        }
+
+        .code-title {
+            font-weight: bold;
+        }
+
+        .classification-header {
+            position: relative;
+            text-align: center;
+            font-weight: bold;
+            height: 28px;
+        }
+
+        .left-code {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+
+        .center-title {
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .right-code {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+
+        .certificate-text {
+            font-size: 26px;
+            font-weight: bold;
+            line-height: 1.8;
+        }
+
+    </style>
+
+    @* /* Override all inline borders */
+
+    table td,
+    table th {
+    border-width: 3px !important;
+    border-color: #000 !important;
+    }*@
+
+</head>
+<body>
+
+    <div class="print-button">
+
+        <button onclick="window.print()">
+            Print Voucher
+        </button>
+
+        <a asp-controller="BillingCertification"
+           asp-action="Index">
+            <button type="button">
+                Back
+            </button>
+        </a>
+
+    </div>
+
+    <div class="voucher-wrapper">
+
+        <div class="voucher">
+
+            <div class="header main-title" style="text-align:center;">
+
+                <span style="display:block; font-size:40px; font-weight:bold;">
+                    UNIVERSITY OF BENIN TEACHING HOSPITAL
+                </span>
+
+                <span style="display:block; font-size:36px; font-weight:bold;">
+                    PAYMENT VOUCHER
+                </span>
+
+            </div>
+
+
+            <div class="header-info">
+
+                <div class="left-header">
+                    <span class="label-text">VOUCHER NO:</span>
+                    <span class="model-data">@Model.VoucherNumber</span>
+                </div>
+
+                <div class="right-header">
+                    Checked and Passed for Payment at:
+                    <span class="location-text">BENIN CITY</span>
+                </div>
+
+            </div>
+
+            <div class="voucher-body">
+
+                <div class="advance-box">
+
+                    <div class="title">
+                        For Use in Payment of Advance
+                    </div>
+
+                    <div class="advance-content">
+
+                        <div>Certified the Advance of the sum of</div>
+
+                        <span class="line"></span>
+
+                        <div>to Mr./Mrs./Miss</div>
+
+                        <span class="line"></span>
+
+                        <div>Voucher No:</div>
+
+                        <span class="line"></span>
+
+                        <div>Name in Block Letters:</div>
+
+                        <span class="line"></span>
+
+
+                    </div>
+
+                </div>
+
+
+
+                @{
+                    string volCode =
+                    (Model.VoucherNumber ?? "").Contains("C2")
+                    ? "002"
+                    : "004";
+
+                    string controlCode =
+                    (Model.VoucherNumber ?? "").Contains("C2")
+                    ? "00205210260052A"
+                    : "00405210260052A";
+
+                    string voucherNumber =
+                    Model.VoucherNumber ?? "";
+
+                    string classificationCode =
+                    Model.ClassificationCode ?? "";
+
+                    string sourceCode =
+                    Model.SourceClassificationCode ?? "";
+
+                    string amount =
+                    Model.Amount.ToString("N2");
+                }
+
+
+
+
+
+                <div class="main-content">
+
+                    <div class="treasury-section">
+
+                        <table class="treasury-grid">
+
+                            <tr>
+                                <td class="digit-box">&nbsp;</td>
+
+                                <td colspan="11" class="label-cell">
+                                    4 Sources 6 7 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Voucher Number 14
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="digit-box">V</td>
+
+                                <!-- Cell 1 -->
+                                <td class="digit-box">@volCode[0]</td>
+
+                                <!-- Cell 2 -->
+                                <td class="digit-box">@volCode[1]</td>
+
+                                <!-- Cell 3 -->
+                                <td class="digit-box">@volCode[2]</td>
+
+                                <!-- Cell 4 (Blank) -->
+                                <td class="digit-box">&nbsp;</td>
+
+                                <!-- Cell 5 -->
+                                <td class="digit-box">R</td>
+
+                                <!-- Cell 6 -->
+                                <td class="digit-box">E</td>
+
+                                <!-- Cell 7 -->
+                                <td class="digit-box">X</td>
+
+                                <!-- Cell 8 -->
+                                <td class="digit-box">1</td>
+
+                                <!-- Cell 9 (Blank) -->
+                                <td class="digit-box">&nbsp;</td>
+
+                                <!-- Cell 10 (Blank) -->
+                                <td class="digit-box">&nbsp;</td>
+
+                                <!-- Cell 11 (Blank) -->
+                                <td class="digit-box">&nbsp;</td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="12" class="classification-header">
+                                    <span class="left-code">15</span>
+
+                                    <span class="center-title">
+                                        Classification Code
+                                    </span>
+
+                                    <span class="right-code">26</span>
+                                </td>
+                            </tr>
+
+                            <tr>
+
+                                @{
+                                    var classificationChars = classificationCode.ToCharArray();
+
+                                    for (int i = 0; i < 12; i++)
+                                    {
+                                        if (i < classificationChars.Length)
+                                        {
+                                            <td class="digit-box">@classificationChars[i]</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="digit-box">&nbsp;</td>
+                                        }
+                                    }
+                                }
+
+                            </tr>
+
+
+                            <tr>
+
+                                <!-- Date occupies columns 27 - 32 -->
+                                <td colspan="6" class="classification-header">
+                                    <span class="left-code">27</span>
+
+                                    <span class="center-title">
+                                        Date
+                                    </span>
+
+                                    <span class="right-code">32</span>
+                                </td>
+
+                                <!-- Amount occupies columns 33 - 45 (9 columns) -->
+                                <td colspan="9" class="classification-header">
+                                    <span class="left-code">33</span>
+
+                                    <span class="center-title">
+                                        Amount
+                                    </span>
+
+                                    <span class="right-code">45</span>
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <!-- Day -->
+                                <td class="digit-box">
+                                    @Model.Date.Day.ToString("00")[0]
+                                </td>
+
+                                <td class="digit-box">
+                                    @Model.Date.Day.ToString("00")[1]
+                                </td>
+
+                                <!-- Month -->
+                                <td class="digit-box">
+                                    @Model.Date.Month.ToString("00")[0]
+                                </td>
+
+                                <td class="digit-box">
+                                    @Model.Date.Month.ToString("00")[1]
+                                </td>
+
+                                <!-- Year -->
+                                <td class="digit-box">
+                                    @((Model.Date.Year % 100).ToString("00")[0])
+                                </td>
+
+                                <td class="digit-box">
+                                    @((Model.Date.Year % 100).ToString("00")[1])
+                                </td>
+
+                                <!-- Amount now spans columns 33 - 45 -->
+                                <td colspan="9" class="amount-cell">
+                                    @Model.Amount.ToString("N2")
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <!-- Source occupies columns 46 - 48 -->
+                                <td colspan="3" class="classification-header">
+                                    <span class="left-code">46</span>
+
+                                    <span class="center-title">
+                                        Source
+                                    </span>
+
+                                    <span class="right-code">48</span>
+                                </td>
+
+                                <!-- Classification Code columns 49 - 60 (9 columns) -->
+                                <td colspan="9" class="classification-header">
+                                    <span class="left-code">49</span>
+
+                                    <span class="center-title">
+                                        Classification Code
+                                    </span>
+
+                                    <span class="right-code">60</span>
+                                </td>
+
+                            </tr>
+
+
+
+
+
+
+                            <tr>
+                                @foreach (char c in controlCode)
+                                {
+                                    <td class="digit-box">@c</td>
+                                }
+                            </tr>
+
+                        </table>
+
+                        <table class="station-grid">
+
+                            <tr>
+                                <td>
+                                    Station:
+                                    @(Model.Station ?? "BENIN CITY")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    Head:
+                                    @Model.Head
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    S/Head:
+                                    @Model.SubHead
+                                </td>
+                            </tr>
+
+
+
+
+
+
+
+                        </table>
+
+                    </div>
+
+
+
+
+
+                    @*<!-- Payee and Address Section -->
+                <div style="margin-top:25px; font-size:26px; width:100%;">
+
+                    <div style="margin-bottom:8px; text-align:left;">
+                        <strong>Payee:</strong> @Model.Payee
+                    </div>
+
+                    <div style="text-align:left;">
+                        <strong>Address:</strong> @Model.Address
+                    </div>
+
+                </div>*@
+
+                </div>
+
+            </div>
+
+        </div>
+        <table style="width:100%; margin-top:12px; border-collapse:collapse;">
+
+            <tr>
+                <td style="border:none; padding:3px 0; font-size:26px;; font-weight:bold;">
+                    <span class="label-text">PAYEE:</span>
+                    <span class="model-data">@Model.Payee</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="border:none; padding:3px 0; font-size:26px;; font-weight:bold;">
+                    <span class="label-text">ADDRESS:</span>
+                    <span class="model-data">@Model.Address</span>
+                </td>
+            </tr>
+
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed;">
+
+            <!-- First Row -->
+            <tr>
+
+                <!-- Columns 1 - 3 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-weight:bold;
+               font-size:24px;">
+                    DATE
+                </td>
+
+                <!-- Columns 4 - 14 -->
+                <td colspan="11"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-weight:bold;
+               font-size:24px;">
+                    DETAILED DESCRIPTION OF SERVICE/ WORK
+                </td>
+
+                <!-- Columns 15 - 17 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-weight:bold;
+               font-size:24px;">
+                    RATE
+                </td>
+
+                <!-- Columns 18 - 22 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-weight:bold;
+               font-size:24px;">
+                    N : K
+                </td>
+
+            </tr>
+
+            <!-- Second Row -->
+            <tr>
+
+                <!-- Columns 1 - 3 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-size:24px;">
+                    <span class="model-data">
+                        @Model.Date.ToString("dd/MM/yyyy")
+                    </span>
+                </td>
+
+                <!-- Columns 4 - 14 -->
+                <td colspan="11"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:left;
+               vertical-align:middle;
+               padding-left:8px;
+               font-size:24px;">
+                    <span class="model-data">
+                        @Model.Description
+                    </span>
+                </td>
+
+                <!-- Columns 15 - 17 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-size:24px;">
+                </td>
+
+                <!-- Columns 18 - 22 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-size:24px;">
+                </td>
+
+            </tr>
+
+            <!-- Third Row -->
+            <tr>
+
+                <!-- Columns 1 - 3 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-size:24px;">
+                </td>
+
+                <!-- Columns 4 - 14 -->
+                <td colspan="11"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:right;
+               vertical-align:middle;
+               font-weight:bold;
+               padding-right:10px;
+               font-size:24px;">
+                    GROSS
+                </td>
+
+                <!-- Columns 15 - 17 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:center;
+               vertical-align:middle;
+               font-size:24px;">
+                </td>
+
+                <!-- Columns 18 - 22 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+               height:30px;
+               text-align:right;
+               vertical-align:middle;
+               font-weight:bold;
+               padding-right:10px;
+               font-size:24px;">
+                    <span class="model-data">
+                        @Model.Amount.ToString("N2")
+                    </span>
+                </td>
+
+            </tr>
+
+            @{
+                decimal gamount = Model.Amount;
+
+                decimal fgn_whtPercent = gamount > 0
+                ? (Model.FGN_WHT * 100M) / gamount
+                : 0;
+
+                decimal edg_whtPercent = gamount > 0
+                ? (Model.EDG_WHT * 100M) / gamount
+                : 0;
+
+                decimal stampDutyPercent = gamount > 0
+                ? (Model.StampDuty * 100M) / gamount
+                : 0;
+
+                decimal vatPercent = gamount > 0
+                ? (Model.VAT * 100M) / gamount
+                : 0;
+            }
+
+            <!-- Fourth Row -->
+            <tr>
+
+                <!-- Columns 1 - 3 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:70px;
+               vertical-align:top;
+               font-size:24px;">
+                </td>
+
+                <!-- Columns 4 - 9 -->
+                <td colspan="6"
+                    style="border:3px solid #000;
+               height:70px;
+               vertical-align:top;
+               text-align:left;
+               padding:8px;
+               line-height:1.4;
+               font-size:24px;
+font-weight:bold;
+               font-family:'Times New Roman', Times, serif;">
+
+                    <strong style="font-size:26px;">
+                        I, @Model.Payee
+                    </strong><br />
+
+                    <span style="font-size:26px;">
+                        certify on honour that the above amount is for the interest
+                    </span><br />
+
+                    <span style="font-size:26px;">
+                        of the public service.
+                    </span>
+
+                </td>
+
+               @* <!-- Columns 10 - 14 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+               height:70px;
+               vertical-align:top;
+               text-align:right;
+               padding:8px;
+               line-height:1.6;
+               font-size:24px;">
+
+                    CONTRACT SUM<br />
+
+                    LESS WHT @whtPercent.ToString("N2")%<br />
+
+                    LESS STAMP DUTY @stampDutyPercent.ToString("N2")%<br />
+
+                    LESS VAT @vatPercent.ToString("N2")%
+
+                </td>*@
+
+                <!-- Columns 10 - 14 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+           height:70px;
+           vertical-align:top;
+           text-align:right;
+           padding:8px;
+font-weight:bold;
+           font-size:24px;">
+
+                    <div style="height:10px;">&nbsp;</div>
+
+                    <div style="margin-bottom:10px;">
+                        CONTRACT SUM
+                    </div>
+
+                    <div style="height:10px;">&nbsp;</div>
+                    <div style="margin-bottom:10px;">
+                        LESS FGN_WHT @fgn_whtPercent.ToString("N2")%
+                    </div>
+
+                    <div style="height:10px;">&nbsp;</div>
+                    <div style="margin-bottom:10px;">
+                        LESS EDG_WHT @edg_whtPercent.ToString("N2")%
+                    </div>
+
+                    <div style="height:10px;">&nbsp;</div>
+                    <div style="margin-bottom:10px;">
+                        LESS STAMP DUTY @stampDutyPercent.ToString("N2")%
+                    </div>
+
+                    <div style="height:10px;">&nbsp;</div>
+                    <div>
+                        LESS VAT @vatPercent.ToString("N2")%
+                    </div>
+
+                </td>
+
+                <!-- Columns 15 - 17 -->
+                <td colspan="3"
+                    style="border:3px solid #000;
+               height:70px;
+               vertical-align:top;
+               text-align:left;
+               padding:8px;
+               font-size:24px;">
+                </td>
+
+                <!-- Columns 18 - 22 -->
+                <td colspan="5"
+                    style="border:3px solid #000;
+               height:70px;
+               vertical-align:top;
+               text-align:right;
+               padding:8px;
+               line-height:1.8;
+               font-size:24px;">
+
+                    <div class="model-data">
+                        @Model.Amount.ToString("N2")<br />
+                    </div>
+
+                    <div class="model-data">
+                        @Model.FGN_WHT.ToString("N2")<br />
+                    </div>
+
+                    <div class="model-data">
+                        @Model.EDG_WHT.ToString("N2")<br />
+                    </div>
+
+                    <div class="model-data">
+                        @Model.StampDuty.ToString("N2")<br />
+                    </div>
+
+                    <div class="model-data">
+                        @Model.VAT.ToString("N2")
+                    </div>
+
+                </td>
+
+            </tr>
+            <!-- ================================================= -->
+            <!-- ✅ NEW TABLE: 1 ROW, 22 COLUMNS (ADDED AS REQUESTED) -->
+            <!-- ================================================= -->
+            @*<table style="margin-top:15px; table-layout:fixed;">*@
+
+            @{
+                string totalAmountInWords =
+                NumberToWords((long)Model.TotalAmount) + " NAIRA";
+            }
+
+            <tr>
+
+
+                <!-- Columns 1 - 14 Merged -->
+                <td colspan="14"
+                    style="
+        border:3px solid #000;
+        height:55px;
+        padding:8px;
+        vertical-align:middle;
+        text-align:center;
+        z :12px;
+        font-weight:bold;
+        line-height:1.6;
+    ">
+
+                    <span style="
+        font-weight:bold;
+        text-decoration:underline;
+        display:block;
+        text-align:center;
+        font-size:26px;;">
+                        <span class="heading-text">
+                            CHECKED AND PASSED FOR PAYMENT
+                        </span>
+                    </span>
+
+                    <span style="
+    display:block;
+    text-align:center;
+    font-weight:bold;
+    font-size:26px;
+    margin-top:5px;">
+                        @totalAmountInWords ONLY.
+                    </span>
+
+                </td>
+
+                <!-- Columns 15 - 17 Merged -->
+                <td colspan="3"
+                    style="
+            border:3px solid #000;
+            text-align:center;
+            vertical-align:middle;
+            font-weight:bold;
+            font-size:26px;;">
+                    <span class="total-text">
+                        TOTAL: N
+                    </span>
+                </td>
+
+                <!-- Columns 18 - 22 Merged -->
+                <td colspan="5"
+                    style="
+            border:3px solid #000;
+            text-align:right;
+            vertical-align:middle;
+            font-weight:bold;
+            font-size:26px;;">
+                    @Model.TotalAmount.ToString("N2")
+                </td>
+
+            </tr>
+
+
+            @* </table>*@
+
+            <!-- ========================================== -->
+            <!-- NEW TABLE: 1 ROW, 22 COLUMNS -->
+            <!-- ========================================== -->
+            <!-- ========================================== -->
+            <!-- NEW TABLE ROW -->
+            <!-- Columns 1-7 Merged | Columns 8-22 Merged -->
+            <!-- ========================================== -->
+            @{
+                var voucherFirstName = (Model.Voucher_FirstName ?? "").ToUpper();
+                var voucherSurname = (Model.Voucher_Surname ?? "").ToUpper();
+
+                var billFirstName = (Model.Bill_FirstName ?? "").ToUpper();
+                var billSurname = (Model.Bill_Surname ?? "").ToUpper();
+                var billDesignation = (Model.Bill_Designation ?? "").ToUpper();
+
+                var voucherDate = Model.Date.ToString("dd/MM/yyyy");
+
+            }
+
+            <tr>
+
+                <!-- Columns 1 - 7 Merged -->
+                <td colspan="7"
+                    style="
+        border:3px solid #000;
+        height:220px;
+        vertical-align:top;
+        padding:10px;
+        font-size:26px;;
+        line-height:1.8;">
+
+                    <div>
+                        PAYABLE AT:
+                        <strong>BENIN CITY</strong>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        SIGNATURE:
+                        _ _ _ _ _ _ _ _ _ _ _ _
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        Name in Block Letters:
+                        <br />
+                        <div style="text-align:center;">
+                            <strong>
+                                @voucherFirstName @voucherSurname
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        STATION:
+                        <strong>UBTH</strong>
+                        &nbsp;&nbsp;&nbsp;
+                        DATE:
+                        <strong>@voucherDate</strong>
+                    </div>
+
+                    @*<div style="margin-top:15px; font-weight:bold;">
+                        PAYING OFFICER
+                    </div>*@
+
+                   @* <div style="height:20px;"></div>
+
+                    <div style="font-weight:bold;">
+                        PAYING OFFICER
+                    </div>*@
+
+                    <div style="height:20px;"></div>
+
+                    <hr style="
+    border:0;
+    border-top:1px solid #000;
+    margin:0 0 8px 0;
+    width:100%;
+" />
+
+                    <div style="font-weight:bold;">
+                        PAYING OFFICER
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        SIGNATURE:
+                        _ _ _ _ _ _ _ _ _ _ _ _
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        Name in Block Letters:
+                        <br />
+                        <div style="text-align:center;">
+                            <strong>
+                                @billFirstName @billSurname
+                            </strong>
+                        </div>
+                    </div>
+
+                    @*<div style="margin-top:10px;">
+                        CHECKED BY:
+                        <strong>
+                            @voucherFirstName @voucherSurname
+                        </strong>
+                    </div>*@
+
+                    <div style="height:20px;">&nbsp;</div>
+
+                    <hr style="
+    border:0;
+    border-top:1px solid #000;
+    margin:0 0 10px 0;
+    width:100%;" />
+
+                    <div style="margin-top:10px;">
+                        CHECKED BY:
+                        <strong>
+                            @voucherFirstName @voucherSurname
+                        </strong>
+                    </div>
+
+
+                    <div style="margin-top:10px;">
+                        SIGNATURE:
+                        _ _ _ _ _ _ _ _ _ _ _ _
+                    </div>
+
+                </td>
+
+                <!-- Columns 8 - 22 Merged -->
+                <td colspan="15"
+                    style="
+        border:3px solid #000;
+        height:220px;
+        vertical-align:top;
+        padding:10px;
+        font-size:26px;;
+        line-height:1.8;">
+
+                    <!-- CERTIFICATE -->
+                    <div class="certificate-title" style="text-align:center; margin-bottom:8px;">
+                        CERTIFICATE
+                    </div>
+
+                    <div class="certificate-text">
+                        I Certify the above amount is correct, and was incurred under the Authority quoted;
+                    </div>
+
+                    <div class="certificate-text">
+                        that the service has been duly performed;
+                    </div>
+
+                    <div class="certificate-text">
+                        that the rate/price charged is according to regulations/contract is fair and reasonable;
+                    </div>
+
+                    <div class="certificate-text">
+                        that the amount of
+                        <strong>@Model.TotalAmount.ToString("N2")</strong>
+                        Naira/Kobo may be paid under the Classification quoted.
+                    </div>
+
+                    <br />
+
+                    <!-- Name and Date Row -->
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:2px;">
+                        <tr>
+                            @*<td style="border:none; text-align:center; font-weight:bold;">
+                                @billFirstName @billSurname
+                            </td>*@
+
+                            <td style="border:none; text-align:center; font-weight:bold;">
+
+                                <span style="
+        display:inline-block;
+        width:6in;
+        text-align:center;
+        border-bottom:2px dotted #000;
+        padding-bottom:2px;">
+                                    @billFirstName @billSurname
+                                </span>
+
+                            </td>
+
+                            @*<td style="border:none; text-align:right; font-weight:bold; width:120px;">
+                                @voucherDate
+                            </td>*@
+
+                            <td style="border:none; text-align:right;">
+
+                                <span style="
+        display:inline-block;
+        width:3in;
+        text-align:center;
+        border-bottom:2px dotted #000;
+        font-weight:bold;
+        padding-bottom:2px;">
+                                    @voucherDate
+                                </span>
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="border:none; text-align:center; font-weight:bold; padding-top:0;">
+                                SIGNATURE OF OFFICER CONTR. EXPENDITURE
+                            </td>
+
+                            @*<td style="border:none; text-align:right; font-weight:bold; padding-top:0;">
+                                DATE
+                            </td>*@
+
+                            <td style="border:none; text-align:right; padding-top:0;">
+
+                                <span style="
+        display:inline-block;
+        margin-right:1in;
+        font-weight:bold;">
+                                    DATE
+                                </span>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                    @*<div style="position:absolute; right:5; top:0; font-weight:bold;">
+                        Date
+                    </div>*@
+
+                    @*</div>*@
+
+                    <br />
+
+                    <!-- Place and Designation -->
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="border:none;">
+                                PLACE:
+                                @*<span class="location-text">UBTH</span>*@
+
+                                <span style="
+    display:inline-block;
+    width:3in;
+    text-align:center;
+    border-bottom:2px dotted #000;
+    padding-bottom:2px;
+    font-weight:bold;">
+                                    UBTH
+                                </span>
+                            </td>
+
+                            <td style="border:none; text-align:right;">
+                                DESIGNATION:
+                                @*<strong>@billDesignation</strong>*@
+
+                                <span style="
+    display:inline-block;
+    width:4in;
+    text-align:center;
+    border-bottom:2px dotted #000;
+    padding-bottom:2px;
+    font-weight:bold;">
+                                    @billDesignation
+                                </span>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                    <br />
+
+                    <!-- Receipt Statement -->
+                    <div>
+                        Received from
+                        <strong>UBTH</strong>
+                        the sum of
+                        <strong>@Model.TotalAmount.ToString("N2")</strong>
+                        Naira/Kobo
+                    </div>
+
+                    <div>
+                        in full settlement of the Account.
+                    </div>
+
+                    <br /><br />
+
+                    <!-- Final Row -->
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="border:none;">
+                                <strong>DATE:</strong> - - - - - - - - - 
+                            </td>
+
+                            <td style="border:none; text-align:center;">
+                                <strong>PLACE:</strong>
+                                @*<strong>UBTH</strong>*@
+
+                                <strong style="
+    display:inline-block;
+    width:3in;
+    text-align:center;
+    border-bottom:2px dotted #000;
+    padding-bottom:2px;">
+    UBTH
+</strong>
+
+                            </td>
+
+                            @*<td style="border:none; text-align:right;">
+                                ____________________
+                                <br />
+                                <strong>SIGNATURE</strong>
+                            </td>*@
+
+                            <td style="border:none; text-align:right;">
+                                _ _ _ _ _ _ _ _ _ _ 
+                                <br />
+                                <strong style="display:inline-block; margin-right:0.5in;">
+                                    SIGNATURE
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </td>
+
+
+            </tr>
+
+
+
+
+
+
+        </table>
+
+        <!-- ========================================= -->
+        <!-- TOTAL AMOUNT FOOTER -->
+        <!-- ========================================= -->
+
+        <div style="
+    margin-top:10px;
+    font-size:26px;;
+    font-weight:bold;
+    text-align:left;">
+            =N= @Model.TotalAmount.ToString("N2") K
+        </div>
+
+        <!-- ========================================= -->
+        <!-- APPLICATION FOOTER -->
+        <!-- ========================================= -->
+
+        <div style="
+    margin-top:8px;
+    font-size:26px;
+    font-weight:bold;
+    text-align:center;">
+            @@2026 - UBTH ICT Payment Voucher App
+        </div>
+
+    </div> <!-- End voucher -->
+    </div> <!-- End voucher-wrapper -->
+
+</body>
+</html>

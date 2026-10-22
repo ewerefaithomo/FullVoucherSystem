@@ -1,0 +1,386 @@
+﻿@model FullVoucherSystem.Models.ImprestHolder
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Imprest Holder - UBTH</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 3px solid #2e7d32;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 55px;
+                height: auto;
+            }
+
+            .logo-area h2 {
+                margin: 0 0 0 15px;
+                color: #2e7d32;
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+        .user-info {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 15px;
+            background-color: #e8f5e9;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .form-box {
+            background: #ffffff;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-title {
+            text-align: center;
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+            .form-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60px;
+                height: 3px;
+                background-color: #2e7d32;
+                border-radius: 2px;
+            }
+
+        .form-group-section {
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px 22px 15px 22px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+            .form-group-section legend {
+                padding: 0 12px;
+                color: #1b5e20;
+                font-size: 16px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                background-color: #ffffff;
+                border: 1px solid #a5d6a7;
+                border-radius: 4px;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-field.full-width {
+                grid-column: span 2;
+            }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #424242;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: #2e7d32;
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+            }
+
+        .actions-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-submit {
+            flex: 2;
+            padding: 12px 20px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .btn-submit:hover {
+                background-color: #1b5e20;
+            }
+
+        .btn-more {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: #0275d8;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .btn-more:hover {
+                background-color: #025aa5;
+            }
+
+        .btn-close {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: #616161;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+
+            .btn-close:hover {
+                background-color: #424242;
+            }
+
+        .success-message {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .error-banner {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        @@media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-field.full-width {
+                grid-column: span 1;
+            }
+
+            .actions-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <h2>UBTH Voucher System</h2>
+        </div>
+
+        <div class="user-info">
+            @ViewBag.Surname @ViewBag.FirstName
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-box">
+            <h2 class="form-title">Register Imprest Holder</h2>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="success-message">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="error-banner">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <form asp-controller="ImprestHolder" asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <fieldset class="form-group-section">
+                    <legend>1. Identification Details</legend>
+                    <div class="form-grid">
+
+                        <div class="form-field">
+                            <label asp-for="FolioNumber">Folio Number</label>
+                            <input asp-for="FolioNumber" name="FolioNumber" id="FolioNumber" placeholder="Enter Folio Number" />
+                            <span asp-validation-for="FolioNumber" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="StaffId">Staff ID</label>
+                            <input asp-for="StaffId" name="StaffId" id="StaffId" placeholder="Enter Staff ID" />
+                            <span asp-validation-for="StaffId" class="error"></span>
+                        </div>
+
+                        <div class="form-field full-width">
+                            <label asp-for="StaffNames">Staff Names</label>
+                            <input asp-for="StaffNames" name="StaffNames" id="StaffNames" placeholder="Enter Full Name" />
+                            <span asp-validation-for="StaffNames" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="Designation">Designation</label>
+                            <input asp-for="Designation" name="Designation" id="Designation" placeholder="Enter Designation" />
+                            <span asp-validation-for="Designation" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="Department">Department</label>
+                            <input asp-for="Department" name="Department" id="Department" placeholder="Enter Department" />
+                            <span asp-validation-for="Department" class="error"></span>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-group-section">
+                    <legend>2. Bank & Contact Details</legend>
+                    <div class="form-grid">
+
+                        <div class="form-field">
+                            <label asp-for="Bank">Bank Name</label>
+                            <input asp-for="Bank" name="Bank" id="Bank" placeholder="Enter Bank Name" />
+                            <span asp-validation-for="Bank" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="AccountName">Account Name</label>
+                            <input asp-for="AccountName" name="AccountName" id="AccountName" placeholder="Enter Account Name" />
+                            <span asp-validation-for="AccountName" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="AccountNumber">Account Number</label>
+                            <input asp-for="AccountNumber" name="AccountNumber" id="AccountNumber" placeholder="Enter Account Number" />
+                            <span asp-validation-for="AccountNumber" class="error"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="PhoneNumber">Phone Number</label>
+                            <input asp-for="PhoneNumber" name="PhoneNumber" id="PhoneNumber" placeholder="Enter Phone Number" />
+                            <span asp-validation-for="PhoneNumber" class="error"></span>
+                        </div>
+
+                        <div class="form-field full-width">
+                            <label asp-for="Email">Email Address</label>
+                            <input asp-for="Email" name="Email" id="Email" placeholder="Enter Email Address" />
+                            <span asp-validation-for="Email" class="error"></span>
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <div class="actions-area">
+                    <button type="submit" class="btn-submit">Submit</button>
+                    <a href="/ImprestHolder/Register" class="btn-more">More Registration</a>
+                    <a href="/Dashboard/Index" class="btn-close">Close</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

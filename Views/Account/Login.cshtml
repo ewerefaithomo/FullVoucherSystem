@@ -1,0 +1,383 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - UBTH Payment Voucher System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 40%, #e8f5e9 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Floating Decorative Graphic Cards (Animated Background Elements) */
+        .graphic-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: #ffffff;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Graphic 1: Animated Pulse Floating Voucher Icon (Top Right) */
+        .graphic-voucher {
+            top: 15%;
+            right: 8%;
+            width: 220px;
+            animation: floatPulse 6s ease-in-out infinite;
+        }
+
+        /* Graphic 2: Floating Workflow Card (Bottom Left) */
+        .graphic-workflow {
+            bottom: 20%;
+            left: 6%;
+            width: 240px;
+            animation: floatSlow 8s ease-in-out infinite alternate;
+        }
+
+        .graphic-card-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .graphic-card-val {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @@keyframes floatPulse {
+            0% {
+                transform: translateY(0px) scale(1);
+            }
+
+            50% {
+                transform: translateY(-18px) scale(1.03);
+            }
+
+            100% {
+                transform: translateY(0px) scale(1);
+            }
+        }
+
+        @@keyframes floatSlow {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-25px) rotate(-2deg);
+            }
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px 35px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+            .header img {
+                width: 60px;
+                height: auto;
+            }
+
+            .header h1 {
+                margin-left: 15px;
+                color: #2e7d32;
+                font-size: 21px;
+                font-weight: 700;
+                letter-spacing: 0.3px;
+            }
+
+        /* Center Login Container */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 40px 20px;
+            z-index: 5;
+        }
+
+        .login-box {
+            background: #ffffff;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border: 1px solid #c8e6c9;
+            position: relative;
+        }
+
+        .login-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            font-size: 24px;
+        }
+
+        h2 {
+            color: #2e7d32;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #a5d6a7;
+            border-radius: 7px;
+            font-size: 14px;
+            background-color: #fafafa;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+            input:focus,
+            select:focus {
+                outline: none;
+                border-color: #2e7d32;
+                background-color: #ffffff;
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+            }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 7px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+            button:hover {
+                background-color: #1b5e20;
+            }
+
+            button:active {
+                transform: scale(0.99);
+            }
+
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Continuous Left-to-Right Scrolling Ticker Bar at Bottom */
+        .ticker-container {
+            width: 100%;
+            background: rgba(27, 94, 32, 0.95);
+            border-top: 2px solid #81c784;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 12px 0;
+            z-index: 10;
+        }
+
+        .ticker-wrapper {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollTicker 28s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+            .ticker-item .badge {
+                background-color: #81c784;
+                color: #1b5e20;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: 700;
+            }
+
+        @@keyframes scrollTicker {
+            0% {
+                transform: translateX(-50%);
+            }
+
+            100% {
+                transform: translateX(0%);
+            }
+        }
+
+        /* Responsive hiding of extra graphics on smaller screens */
+        @@media (max-width: 900px) {
+            .graphic-card {
+                display: none;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Floating Graphic Elements (Voucher & Payment Graphics) -->
+    <div class="graphic-card graphic-voucher">
+        <div class="graphic-card-title">?? System Status</div>
+        <div class="graphic-card-val">
+            <span>Payment Vouchers</span>
+            <span style="color: #a5d6a7; font-size: 12px;">? Active</span>
+        </div>
+    </div>
+
+    <div class="graphic-card graphic-workflow">
+        <div class="graphic-card-title">?? Multi-Stage Audit</div>
+        <div class="graphic-card-val">
+            <span>Verification Portal</span>
+        </div>
+    </div>
+
+    <!-- Top Left Logo Header -->
+    <div class="header">
+        <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+        <h1>UBTH Computerized Payment Voucher System Portal</h1>
+    </div>
+
+    <!-- Center Login Form Card -->
+    <div class="main-content">
+        <div class="login-box">
+
+            <div class="login-icon">??</div>
+            <h2>Portal Login</h2>
+
+            <form method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="input-group">
+                    <input type="text"
+                           name="username"
+                           placeholder="Username"
+                           required />
+                </div>
+
+                <div class="input-group">
+                    <input type="password"
+                           name="password"
+                           placeholder="Password"
+                           required />
+                </div>
+
+                <!-- Role Dropdown -->
+                <div class="input-group">
+                    <select name="role" required>
+                        <option value="">-- Select Role --</option>
+                        <option value="BILLING OFFICER">BILLING OFFICER</option>
+                        <option value="BILLING CERTIFICATION OFFICER">BILLING CERTIFICATION OFFICER</option>
+                        <option value="AUDITOR">AUDITOR</option>
+                        <option value="CASH PAYMENT OFFICER">CASH PAYMENT OFFICER</option>
+                        <option value="FINAL LEDGER OFFICER">FINAL LEDGER OFFICER</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="SUPER ADMIN">SUPER ADMIN</option>
+                        <option value="HEAD OF DEPARTMENT">HEAD OF DEPARTMENT</option>
+                    </select>
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="error">?? @ViewBag.Error</div>
+            }
+
+        </div>
+    </div>
+
+    <!-- Continuous Left-to-Right Scrolling Ticker Bar -->
+    <div class="ticker-container">
+        <div class="ticker-wrapper">
+            <!-- First Set -->
+            <div class="ticker-item"><span class="badge">STAGE 1</span> Billing Certification Processing</div>
+            <div class="ticker-item"><span class="badge">STAGE 2</span> Internal Audit Clearance</div>
+            <div class="ticker-item"><span class="badge">STAGE 3</span> Cash Room Disbursement</div>
+            <div class="ticker-item"><span class="badge">STAGE 4</span> Final Ledger Accounting</div>
+            <div class="ticker-item"><span class="badge">SECURE</span> Real-time Voucher Tracking & Budget Control</div>
+
+            <!-- Duplicate Set for Seamless Continuous Scrolling loop -->
+            <div class="ticker-item"><span class="badge">STAGE 1</span> Billing Certification Processing</div>
+            <div class="ticker-item"><span class="badge">STAGE 2</span> Internal Audit Clearance</div>
+            <div class="ticker-item"><span class="badge">STAGE 3</span> Cash Room Disbursement</div>
+            <div class="ticker-item"><span class="badge">STAGE 4</span> Final Ledger Accounting</div>
+            <div class="ticker-item"><span class="badge">SECURE</span> Real-time Voucher Tracking & Budget Control</div>
+        </div>
+    </div>
+
+</body>
+</html>

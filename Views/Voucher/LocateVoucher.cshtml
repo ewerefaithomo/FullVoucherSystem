@@ -1,0 +1,395 @@
+﻿@model IEnumerable<FullVoucherSystem.Models.Voucher>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Layout = null;
+    bool isSearched = ViewBag.IsSearched ?? false;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Locate Voucher - UBTH Voucher Portal</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f8f4;
+            color: #1e3d2f;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            background-color: white;
+            border-bottom: 5px solid #0b7a43;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+            .header-left img {
+                width: 85px;
+                height: 85px;
+                object-fit: contain;
+                margin-right: 20px;
+            }
+
+        .portal-title {
+            color: #0b7a43;
+        }
+
+            .portal-title h1 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .portal-title p {
+                margin: 5px 0 0 0;
+                font-size: 14px;
+                color: #4b6354;
+            }
+
+        .welcome-box {
+            text-align: right;
+            color: #0b7a43;
+            font-size: 16px;
+        }
+
+        .container {
+            width: 95%;
+            margin: 30px auto;
+        }
+
+        .search-card {
+            background-color: white;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-top: 5px solid #0b7a43;
+            margin-bottom: 30px;
+        }
+
+            .search-card h2 {
+                margin-top: 0;
+                color: #0b7a43;
+                margin-bottom: 20px;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0b7a43;
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+            input[type="text"]:focus, input[type="date"]:focus {
+                border-color: #0b7a43;
+                outline: none;
+            }
+
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-submit {
+            background-color: #0b7a43;
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+            .btn-submit:hover {
+                background-color: #085931;
+            }
+
+        .btn-clear {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+            .btn-clear:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-close-page {
+            background-color: #b82c2c;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+            .btn-close-page:hover {
+                background-color: #912222;
+            }
+
+        .results-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-top: 5px solid #0b7a43;
+        }
+
+            .results-card h3 {
+                margin-top: 0;
+                color: #0b7a43;
+                margin-bottom: 20px;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #e8f4ed;
+            color: #0b7a43;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .btn-action-search {
+            background-color: #0b7a43;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+            .btn-action-search:hover {
+                background-color: #085931;
+            }
+
+        .no-records {
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        .footer {
+            margin-top: 40px;
+            background-color: #0b7a43;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <div class="header-left">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <div class="portal-title">
+                <h1>University of Benin Teaching Hospital</h1>
+                <p>Voucher Management Portal System</p>
+            </div>
+        </div>
+
+        <div class="welcome-box">
+            <div>Welcome, <strong>@ViewBag.Surname @ViewBag.FirstName</strong></div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="container">
+
+        <!-- Search Card -->
+        <div class="search-card">
+            <h2>Locate Voucher Search</h2>
+
+            <form asp-controller="Voucher" asp-action="LocateVoucher" method="get">
+                <div class="form-group">
+                    <label for="searchQuery">Search by Payee / Voucher Number</label>
+                    <input type="text"
+                           id="searchQuery"
+                           name="searchQuery"
+                           placeholder="Enter Payee Name or Voucher Number"
+                           value="@ViewBag.SearchQuery"
+                           list="payeesDatalist"
+                           autocomplete="off" />
+                    <datalist id="payeesDatalist"></datalist>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="startDate">Start Date</label>
+                        <input type="date"
+                               id="startDate"
+                               name="startDate"
+                               value="@(ViewBag.StartDate != null ? ((DateTime)ViewBag.StartDate).ToString("yyyy-MM-dd") : "")" />
+                    </div>
+                    <div class="form-col">
+                        <label for="endDate">End Date</label>
+                        <input type="date"
+                               id="endDate"
+                               name="endDate"
+                               value="@(ViewBag.EndDate != null ? ((DateTime)ViewBag.EndDate).ToString("yyyy-MM-dd") : "")" />
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <button type="submit" class="btn-submit">Search</button>
+                    <a href="/Voucher/LocateVoucher" class="btn-clear">Clear Search</a>
+                    <a href="/Dashboard/Index" class="btn-close-page">Close</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Results Grid -->
+        @if (isSearched)
+        {
+            <div class="results-card">
+                <h3>Voucher Search Results</h3>
+
+                @if (Model != null && Model.Any())
+                {
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Voucher Number</th>
+                                    <th>Payee</th>
+                                    <th>Description</th>
+                                    <th>Address</th>
+                                    <th>Date</th>
+                                    <th>Amount (&#8358;)</th>
+                                    <th style="text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td><strong>@item.VoucherNumber</strong></td>
+                                        <td>@item.Payee</td>
+                                        <td>@item.Description</td>
+                                        <td>@item.Address</td>
+                                        <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                                        <td>@item.Amount.ToString("N2")</td>
+                                        <td style="text-align: center;">
+                                            <a href="/Voucher/CheckStatus?voucherNumber=@item.VoucherNumber" class="btn-action-search">Search</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="no-records">
+                        No vouchers matching the specified search criteria were found.
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        UNIVERSITY OF BENIN TEACHING HOSPITAL &copy; @DateTime.Now.Year Voucher Management System
+    </div>
+
+    <!-- Script: Populate Payee Hint Options from Vouchers Table -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const payeeInput = document.getElementById("searchQuery");
+            const datalist = document.getElementById("payeesDatalist");
+
+            payeeInput.addEventListener("focus", function () {
+                if (datalist.children.length === 0) {
+                    fetch('/Voucher/GetPayees')
+                        .then(response => response.json())
+                        .then(data => {
+                            datalist.innerHTML = "";
+                            data.forEach(payeeName => {
+                                const option = document.createElement("option");
+                                option.value = payeeName;
+                                datalist.appendChild(option);
+                            });
+                        })
+                        .catch(err => console.error("Error fetching payees:", err));
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

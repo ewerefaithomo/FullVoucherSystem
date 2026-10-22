@@ -1,0 +1,334 @@
+﻿@model List<FullVoucherSystem.Models.AuditQueryInformation>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Audit Queried Vouchers - UBTH</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 60px;
+            }
+
+            .logo-area h2 {
+                margin-left: 10px;
+                color: #2e7d32;
+            }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .btn-dashboard {
+            background-color: #2e7d32;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+            .btn-dashboard:hover {
+                background-color: #1b5e20;
+            }
+
+        /* Container */
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            width: 850px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        /* Alert styling */
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Table Styling */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+            .styled-table thead tr {
+                background-color: #2e7d32;
+                color: #ffffff;
+                text-align: left;
+            }
+
+            .styled-table th,
+            .styled-table td {
+                padding: 12px 15px;
+                border: 1px solid #c8e6c9;
+            }
+
+            .styled-table tbody tr {
+                border-bottom: 1px solid #dddddd;
+            }
+
+                .styled-table tbody tr:nth-of-type(even) {
+                    background-color: #f1f8f4;
+                }
+
+                .styled-table tbody tr:last-of-type {
+                    border-bottom: 2px solid #2e7d32;
+                }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-update {
+            background-color: #2e7d32;
+        }
+
+            .btn-update:hover {
+                background-color: #1b5e20;
+            }
+
+        .btn-close-custom {
+            background-color: gray;
+        }
+
+            .btn-close-custom:hover {
+                background-color: #5a6268;
+            }
+
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid #c8e6c9;
+        }
+
+        /* Hide elements when printing */
+        @@media print {
+            body {
+                background: none;
+            }
+
+            .btn,
+            .no-print,
+            .btn-dashboard {
+                display: none !important;
+            }
+
+            .card {
+                box-shadow: none;
+                width: 100%;
+                padding: 0;
+            }
+
+            .container {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+
+        <div class="logo-area">
+
+            <img src="~/images/ubth-logo.jpeg"
+                 alt="UBTH Logo" />
+
+            <h2>
+                UBTH Voucher Records for Auditing
+            </h2>
+
+        </div>
+
+        <div class="user-info">
+
+            <a href="/Dashboard/Index"
+               class="btn-dashboard no-print">
+                Back to Dashboard
+            </a>
+
+            <span>
+                @ViewBag.Surname @ViewBag.FirstName
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Content -->
+    <div class="container">
+
+        <div class="card">
+
+            <h2>
+                Audit Queried Vouchers
+            </h2>
+
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert-success">
+                    @TempData["Message"]
+                </div>
+            }
+
+
+            <table class="styled-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Voucher Number
+                        </th>
+
+                        <th>
+                            Query / Remark
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th class="no-print"
+                            style="width: 100px; text-align: center;">
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        @item.VoucherNumber
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    @item.QueryText
+                                </td>
+
+                                <td>
+                                    @item.CreatedDate.ToString("dd-MMM-yyyy HH:mm")
+                                </td>
+
+                                <td class="no-print"
+                                    style="text-align: center;">
+
+                                    <!-- UPDATE ONLY -->
+                                    <a asp-controller="AuditCertification"
+                                       asp-action="AuditUpdateQueriedVoucher"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-update"
+                                       style="padding: 4px 12px; font-size: 12px;">
+                                        Update
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td colspan="4"
+                                style="text-align: center; color: #777;">
+
+                                No queried vouchers available.
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+
+            <hr class="no-print" />
+
+        </div>
+
+    </div>
+
+</body>
+</html>

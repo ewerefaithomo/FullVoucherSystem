@@ -1,0 +1,1159 @@
+﻿@model FullVoucherSystem.Models.Audit
+
+@{
+    Layout = null;
+
+    var predefinedCodes = new List<string> {
+        "21010102", "21020101", "22010103", "22020101", "22020102", "22020103",
+        "22020201", "22020202", "22020203", "22020301", "22020303", "22020304",
+        "22020305", "22020307.1", "22020307.2", "22020307.3", "22020307.4", "22020307.6",
+        "22020307.7", "22020307.9", "22020307.10", "22020307.11", "22020307.12",
+        "22020307.13", "22020307.14", "22020307.15", "22020307.16", "22020307.19",
+        "22020307.21", "22020307.22", "22020307.23", "22020307.24", "22020307.25",
+        "22020307.28", "22020307.29", "22020307.31", "22020307.32", "22020309",
+        "22020311", "22020401", "22020402", "22020403", "22020404", "22020405",
+        "22020406", "22020406.2", "22020406.3", "22020406.4", "22020406.5",
+        "22020406.6", "22020406.7", "22020406.8", "22020406.9", "22020406.10",
+        "22020406.11", "22020406.12", "22020501.1", "22020501.2", "22020501.3",
+        "22020501.4", "22020501.11", "22020501.12", "22020601", "22020604",
+        "22020605.1", "22020605.2", "22020701", "22020702", "22020703",
+        "22020704", "22020708", "22020801", "22020803", "22020803.2",
+        "22020806", "22020902", "22021001", "22021002.1", "22021002.2",
+        "22021002.3", "22021003", "22021004", "22021006", "22021007.1",
+        "22021007.3", "22021007.4", "22021008", "22021009", "22021011",
+        "22021013", "22021014", "22021041", "23050101", "31040102",
+        "31040104", "31060101", "31060301", "00000000"
+    };
+
+    bool isCustomValue = !string.IsNullOrEmpty(Model?.ClassificationCode)
+                         && !predefinedCodes.Contains(Model.ClassificationCode);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Update Audit Queried Voucher - UBTH</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+          rel="stylesheet" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* =========================================================
+                   VOUCHER AMOUNT
+                   Remove browser spinner arrows.
+                   ========================================================= */
+
+        .amount-input {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+            /* Chrome, Edge, Safari */
+            .amount-input::-webkit-outer-spin-button,
+            .amount-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                appearance: none;
+                margin: 0;
+            }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 3px solid #2e7d32;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 55px;
+                height: auto;
+            }
+
+            .logo-area h2 {
+                margin: 0 0 0 15px;
+                color: #2e7d32;
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+        .user-info-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-dashboard {
+            background-color: #2e7d32;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 15px;
+            background-color: #e8f5e9;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .form-box {
+            background: #ffffff;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-title {
+            text-align: center;
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .form-group-section {
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px 22px 15px 22px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+            .form-group-section legend {
+                padding: 0 12px;
+                color: #1b5e20;
+                font-size: 16px;
+                font-weight: 700;
+                text-transform: uppercase;
+                background-color: #ffffff;
+                border: 1px solid #a5d6a7;
+                border-radius: 4px;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-field.full-width {
+                grid-column: span 2;
+            }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #424242;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: none;
+                border-color: #2e7d32;
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+            }
+
+        .readonly-box {
+            background-color: #f1f8e9 !important;
+            font-weight: 700;
+            color: #2e7d32;
+            border-color: #a5d6a7;
+        }
+
+        .actions-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button[type="submit"] {
+            flex: 2;
+            padding: 12px 20px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: #616161;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+
+            <h2>UBTH Voucher Records for Auditing</h2>
+        </div>
+
+        <div class="user-info-area">
+            <a href="/Dashboard/Index" class="btn-dashboard">
+                Back to Dashboard
+            </a>
+
+            <div class="user-info">
+                @ViewBag.Surname @ViewBag.FirstName
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="form-box">
+
+            <h2 class="form-title">
+                Update Audit Queried Voucher Information
+            </h2>
+
+            <form asp-controller="AuditCertification"
+                  asp-action="AuditUpdateQueriedVoucher"
+                  method="post"
+                  id="voucherForm">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="VoucherNumber" />
+
+                <!-- =====================================================
+                     1. VOUCHER & CLASSIFICATION DETAILS
+                     ===================================================== -->
+
+                <fieldset class="form-group-section">
+
+                    <legend>
+                        1. Voucher & Classification Details
+                    </legend>
+
+                    <div class="form-grid">
+
+                        <div class="form-field">
+
+                            <label>Voucher Number</label>
+
+                            <input type="text"
+                                   class="readonly-box"
+                                   value="@Model?.VoucherNumber"
+                                   readonly />
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Checked Location</label>
+
+                            <input asp-for="CheckedLocation"
+                                   placeholder="Location" />
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Station</label>
+
+                            <input asp-for="Station"
+                                   placeholder="Station" />
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Head</label>
+
+                            <input asp-for="Head"
+                                   placeholder="Head" />
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Sub Head</label>
+
+                            <input asp-for="SubHead"
+                                   placeholder="Sub Head" />
+
+                        </div>
+
+                        <div class="form-field full-width">
+
+                            <label>Classification Code</label>
+
+                            <select asp-for="ClassificationCode">
+
+                                <option value="">
+                                    -- Select Classification --
+                                </option>
+
+                                <option value="21010102 - OVERTIME PAYMENTS">
+                                    21010102 - OVERTIME PAYMENTS
+                                </option>
+
+                                <option value="21020101 - NON REGULAR ALLOWANCES (UNIFORM ALLOWANCES, NYSC ALLOWA)">
+                                    21020101 - NON REGULAR ALLOWANCES (UNIFORM ALLOWANCES, NYSC ALLOWA)
+                                </option>
+
+                                <option value="22010103 - DEATH BENEFITS">
+                                    22010103 - DEATH BENEFITS
+                                </option>
+
+                                <option value="22020101 - LOCAL TRAVEL & TRANSPORT: TRAINING">
+                                    22020101 - LOCAL TRAVEL & TRANSPORT: TRAINING
+                                </option>
+
+                                <option value="22020102 - LOCAL TRAVEL & TRANSPORT: OTHERS">
+                                    22020102 - LOCAL TRAVEL & TRANSPORT: OTHERS
+                                </option>
+
+                                <option value="22020103 - INTERNATIONAL TRAVEL & TRANSPORT: TRAINING">
+                                    22020103 - INTERNATIONAL TRAVEL & TRANSPORT: TRAINING
+                                </option>
+
+                                <option value="22020201 - ELECTRICITY CHARGES">
+                                    22020201 - ELECTRICITY CHARGES
+                                </option>
+
+                                <option value="22020202 - TELEPHONE CHARGES">
+                                    22020202 - TELEPHONE CHARGES
+                                </option>
+
+                                <option value="22020203 - INTERNET ACCESS CHARGES">
+                                    22020203 - INTERNET ACCESS CHARGES
+                                </option>
+
+                                <option value="22020301 - OFFICE STATIONERIES / COMPUTER CONSUMABLES">
+                                    22020301 - OFFICE STATIONERIES / COMPUTER CONSUMABLES
+                                </option>
+
+                                <option value="22020303 - NEWSPAPERS">
+                                    22020303 - NEWSPAPERS
+                                </option>
+
+                                <option value="22020304 - MAGAZINES & PERIODICALS">
+                                    22020304 - MAGAZINES & PERIODICALS
+                                </option>
+
+                                <option value="22020305 - PRINTING OF NON SECURITY DOCUMENTS">
+                                    22020305 - PRINTING OF NON SECURITY DOCUMENTS
+                                </option>
+
+                                <option value="22020307.1 - DRUGS">
+                                    22020307.1 - DRUGS
+                                </option>
+
+                                <option value="22020307.2 - BLOOD TRANSFUSION/ HEAMATOLOGY">
+                                    22020307.2 - BLOOD TRANSFUSION/ HEAMATOLOGY
+                                </option>
+
+                                <option value="22020307.3 - CHEMICAL PATHOLOGY">
+                                    22020307.3 - CHEMICAL PATHOLOGY
+                                </option>
+
+                                <option value="22020307.4 - ELECTROCARDIOGRAM (E.C.G.)">
+                                    22020307.4 - ELECTROCARDIOGRAM (E.C.G.)
+                                </option>
+
+                                <option value="22020307.6 - MICROBIOLOGY">
+                                    22020307.6 - MICROBIOLOGY
+                                </option>
+
+                                <option value="22020307.7 - MORBID ANATOMY & MORTUARY">
+                                    22020307.7 - MORBID ANATOMY & MORTUARY
+                                </option>
+
+                                <option value="22020307.9 - O&G CONSUMABLES">
+                                    22020307.9 - O&G CONSUMABLES
+                                </option>
+
+                                <option value="22020307.10 - LABORATORY/MEDICAL EQUIPTMENT & REAGENTS">
+                                    22020307.10 - LABORATORY/MEDICAL EQUIPTMENT & REAGENTS
+                                </option>
+
+                                <option value="22020307.11 - OPTHAMOLOGY MATERIALS">
+                                    22020307.11 - OPTHAMOLOGY MATERIALS
+                                </option>
+
+                                <option value="22020307.12 - X-RAY CONSUMABLES & MATERIALS">
+                                    22020307.12 - X-RAY CONSUMABLES & MATERIALS
+                                </option>
+
+                                <option value="22020307.13 - SANITARY/CLEANING MATERIALS">
+                                    22020307.13 - SANITARY/CLEANING MATERIALS
+                                </option>
+
+                                <option value="22020307.14 - BEDDING/LINEN/LAUNDRY CONSUMABLES">
+                                    22020307.14 - BEDDING/LINEN/LAUNDRY CONSUMABLES
+                                </option>
+
+                                <option value="22020307.15 - LAUNDRY CONSUMABLES">
+                                    22020307.15 - LAUNDRY CONSUMABLES
+                                </option>
+
+                                <option value="22020307.16 - OCCUPATIONAL THERAPY MATERIALS">
+                                    22020307.16 - OCCUPATIONAL THERAPY MATERIALS
+                                </option>
+
+                                <option value="22020307.19 - THEATRE/SURGICAL EQUIPTMENT & MATERIALS">
+                                    22020307.19 - THEATRE/SURGICAL EQUIPTMENT & MATERIALS
+                                </option>
+
+                                <option value="22020307.21 - DENTAL STORES & CONSUMABLES">
+                                    22020307.21 - DENTAL STORES & CONSUMABLES
+                                </option>
+
+                                <option value="22020307.22 - RENAL STORES & CONSUMABLES">
+                                    22020307.22 - RENAL STORES & CONSUMABLES
+                                </option>
+
+                                <option value="22020307.23 - DRESSING/MEDICAL STORES">
+                                    22020307.23 - DRESSING/MEDICAL STORES
+                                </option>
+
+                                <option value="22020307.24 - ANAESTHESOLOGY MATERIALS">
+                                    22020307.24 - ANAESTHESOLOGY MATERIALS
+                                </option>
+
+                                <option value="22020307.25 - PHYSIOTHERAPY MATERIALS">
+                                    22020307.25 - PHYSIOTHERAPY MATERIALS
+                                </option>
+
+                                <option value="22020307.28 - MEDICAL GASES">
+                                    22020307.28 - MEDICAL GASES
+                                </option>
+
+                                <option value="22020307.29 - OTHER MATERIALS & SUPPLIES">
+                                    22020307.29 - OTHER MATERIALS & SUPPLIES
+                                </option>
+
+                                <option value="22020307.31 - CHC OGBONNA">
+                                    22020307.31 - CHC OGBONNA
+                                </option>
+
+                                <option value="22020307.32 - CHC UDO">
+                                    22020307.32 - CHC UDO
+                                </option>
+
+                                <option value="22020309 - UNIFORMS & OTHER CLOTHING">
+                                    22020309 - UNIFORMS & OTHER CLOTHING
+                                </option>
+
+                                <option value="22020311 - FOOD STUFF / CATERING MATERIALS SUPPLIES">
+                                    22020311 - FOOD STUFF / CATERING MATERIALS SUPPLIES
+                                </option>
+
+                                <option value="22020401 - MAINTENANCE OF MOTOR VEHICLE / TRANSPORT EQUIPMENT">
+                                    22020401 - MAINTENANCE OF MOTOR VEHICLE / TRANSPORT EQUIPMENT
+                                </option>
+
+                                <option value="22020402 - MAINTENANCE OF OFFICE FURNITURE">
+                                    22020402 - MAINTENANCE OF OFFICE FURNITURE
+                                </option>
+
+                                <option value="22020403 - MAINTENANCE OF OFFICE BUILDING / RESIDENTIAL QTRS">
+                                    22020403 - MAINTENANCE OF OFFICE BUILDING / RESIDENTIAL QTRS
+                                </option>
+
+                                <option value="22020404 - MAINTENANCE OF OFFICE / IT EQUIPMENTS">
+                                    22020404 - MAINTENANCE OF OFFICE / IT EQUIPMENTS
+                                </option>
+
+                                <option value="22020405 - MAINTENANCE OF PLANTS/GENERATORS">
+                                    22020405 - MAINTENANCE OF PLANTS/GENERATORS
+                                </option>
+
+                                <option value="22020406 - OTHER MAINTENANCE SERVICES">
+                                    22020406 - OTHER MAINTENANCE SERVICES
+                                </option>
+
+                                <option value="22020406.2 - MAINTENANCE OF FURNITURE & FITTINGS (WARDS & CLINIC)">
+                                    22020406.2 - MAINTENANCE OF FURNITURE & FITTINGS (WARDS & CLINIC)
+                                </option>
+
+                                <option value="22020406.3 - MAINTENANCE OF FURNITURE & FITTINGS (HOSTEL)">
+                                    22020406.3 - MAINTENANCE OF FURNITURE & FITTINGS (HOSTEL)
+                                </option>
+
+                                <option value="22020406.4 - ELECTRICAL INSTALLATION & MAINTENANCE">
+                                    22020406.4 - ELECTRICAL INSTALLATION & MAINTENANCE
+                                </option>
+
+                                <option value="22020406.5 - ENGINEERING STORE, SUPPLIES & SPARE-PARTS">
+                                    22020406.5 - ENGINEERING STORE, SUPPLIES & SPARE-PARTS
+                                </option>
+
+                                <option value="22020406.6 - LAUNDRY EQUIPTMENT MAINTENANCE">
+                                    22020406.6 - LAUNDRY EQUIPTMENT MAINTENANCE
+                                </option>
+
+                                <option value="22020406.7 - MAINTENANCE OF BORE HOLES">
+                                    22020406.7 - MAINTENANCE OF BORE HOLES
+                                </option>
+
+                                <option value="22020406.8 - MAINTENANCE OF PRINTING MACHINE">
+                                    22020406.8 - MAINTENANCE OF PRINTING MACHINE
+                                </option>
+
+                                <option value="22020406.9 - RADIOLOGY MONITORING">
+                                    22020406.9 - RADIOLOGY MONITORING
+                                </option>
+
+                                <option value="22020406.10 - MAINTENANCE OF HOSPITAL EQUIPMENT">
+                                    22020406.10 - MAINTENANCE OF HOSPITAL EQUIPMENT
+                                </option>
+
+                                <option value="22020406.11 - MAINTENANCE OF SEWAGE LINES">
+                                    22020406.11 - MAINTENANCE OF SEWAGE LINES
+                                </option>
+
+                                <option value="22020406.12 - OTHERS">
+                                    22020406.12 - OTHERS
+                                </option>
+
+                                <option value="22020501.1 - LOCAL TRAINING">
+                                    22020501.1 - LOCAL TRAINING
+                                </option>
+
+                                <option value="22020501.2 - ACCREDITATION EXPENSES (MEDICAL & DENTAL)">
+                                    22020501.2 - ACCREDITATION EXPENSES (MEDICAL & DENTAL)
+                                </option>
+
+                                <option value="22020501.3 - POST GRADUATE EDUCATION (RESIDENCY)/RESEARCH GRANT & EXPENSES">
+                                    22020501.3 - POST GRADUATE EDUCATION (RESIDENCY)/RESEARCH GRANT & EXPENSES
+                                </option>
+
+                                <option value="22020501.4 - COLLEGE OF NURSING SCIENCES">
+                                    22020501.4 - COLLEGE OF NURSING SCIENCES
+                                </option>
+
+                                <option value="22020501.11 - CHILDREN PLAY CENTRE">
+                                    22020501.11 - CHILDREN PLAY CENTRE
+                                </option>
+
+                                <option value="22020501.12 - INSTITUTE OF HEALTH SCIENCES & TECHNOLOGY">
+                                    22020501.12 - INSTITUTE OF HEALTH SCIENCES & TECHNOLOGY
+                                </option>
+
+                                <option value="22020601 - SECURITY SERVICES">
+                                    22020601 - SECURITY SERVICES
+                                </option>
+
+                                <option value="22020604 - SECURITY VOTE (INCLUDING OPERATIONS)">
+                                    22020604 - SECURITY VOTE (INCLUDING OPERATIONS)
+                                </option>
+
+                                <option value="22020605.1 - CLEANING & FUMIGATION SERVICES">
+                                    22020605.1 - CLEANING & FUMIGATION SERVICES
+                                </option>
+
+                                <option value="22020605.2 - OUTSOURCED SERVICES">
+                                    22020605.2 - OUTSOURCED SERVICES
+                                </option>
+
+                                <option value="22020701 - FINANCIAL CONSULTING">
+                                    22020701 - FINANCIAL CONSULTING
+                                </option>
+
+                                <option value="22020702 - INFORMATION TECHNOLOGY CONSULTING">
+                                    22020702 - INFORMATION TECHNOLOGY CONSULTING
+                                </option>
+
+                                <option value="22020703 - LEGAL SERVICES">
+                                    22020703 - LEGAL SERVICES
+                                </option>
+
+                                <option value="22020704 - ENGINEERING SERVICES">
+                                    22020704 - ENGINEERING SERVICES
+                                </option>
+
+                                <option value="22020708 - MEDICAL CONSULTING">
+                                    22020708 - MEDICAL CONSULTING
+                                </option>
+
+                                <option value="22020801 - MOTOR VEHICLE FUEL COST">
+                                    22020801 - MOTOR VEHICLE FUEL COST
+                                </option>
+
+                                <option value="22020803 - PLANT / GENERATOR FUEL COST">
+                                    22020803 - PLANT / GENERATOR FUEL COST
+                                </option>
+
+                                <option value="22020803.2 - SUPPLY OF ENGINE OIL/LUBRICANTS">
+                                    22020803.2 - SUPPLY OF ENGINE OIL/LUBRICANTS
+                                </option>
+
+                                <option value="22020806 - COOKING GAS/FUEL COST">
+                                    22020806 - COOKING GAS/FUEL COST
+                                </option>
+
+                                <option value="22020902 - INSURANCE PREMIUM">
+                                    22020902 - INSURANCE PREMIUM
+                                </option>
+
+                                <option value="22021001 - REFRESHMENT & MEALS">
+                                    22021001 - REFRESHMENT & MEALS
+                                </option>
+
+                                <option value="22021002.1 - HONORARIUM & SITTING ALLOWANCE">
+                                    22021002.1 - HONORARIUM & SITTING ALLOWANCE
+                                </option>
+
+                                <option value="22021002.2 - BOARD OF MANAGEMENT EXPENSES - ALLOWANCE, BOADR & LODGIN">
+                                    22021002.2 - BOARD OF MANAGEMENT EXPENSES - ALLOWANCE, BOADR & LODGIN
+                                </option>
+
+                                <option value="22021002.3 - SUPERVISION AND INSPECTION FEES">
+                                    22021002.3 - SUPERVISION AND INSPECTION FEES
+                                </option>
+
+                                <option value="22021003 - PUBLICITY & ADVERTISEMENTS">
+                                    22021003 - PUBLICITY & ADVERTISEMENTS
+                                </option>
+
+                                <option value="22021004 - MEDICAL EXPENSES">
+                                    22021004 - MEDICAL EXPENSES
+                                </option>
+
+                                <option value="22021006 - POSTAGES & COURIER SERVICES">
+                                    22021006 - POSTAGES & COURIER SERVICES
+                                </option>
+
+                                <option value="22021007.1 - WELFARE PACKAGES">
+                                    22021007.1 - WELFARE PACKAGES
+                                </option>
+
+                                <option value="22021007.3 - HOSPITALITY & ENTERTAINMENT">
+                                    22021007.3 - HOSPITALITY & ENTERTAINMENT
+                                </option>
+
+                                <option value="22021007.4 - DONATION & CONTRIBUTIONS">
+                                    22021007.4 - DONATION & CONTRIBUTIONS
+                                </option>
+
+                                <option value="22021008 - SUBSCRIPTION TO PROFESSIONAL BODIES">
+                                    22021008 - SUBSCRIPTION TO PROFESSIONAL BODIES
+                                </option>
+
+                                <option value="22021009 - SPORTING ACTIVITIES">
+                                    22021009 - SPORTING ACTIVITIES
+                                </option>
+
+                                <option value="22021011 - RECRUITMENT AND APPOINTMENT (SERVICE WIDE)">
+                                    22021011 - RECRUITMENT AND APPOINTMENT (SERVICE WIDE)
+                                </option>
+
+                                <option value="22021013 - PROMOTION (SERVICE WIDE)">
+                                    22021013 - PROMOTION (SERVICE WIDE)
+                                </option>
+
+                                <option value="22021014 - ANNUAL BUDGET EXPENSES & ADMINISTRATION">
+                                    22021014 - ANNUAL BUDGET EXPENSES & ADMINISTRATION
+                                </option>
+
+                                <option value="22021041 - CONTIGENCY">
+                                    22021041 - CONTIGENCY
+                                </option>
+
+                                <option value="23050101 - RESEARCH AND DEVELOPMENT">
+                                    23050101 - RESEARCH AND DEVELOPMENT
+                                </option>
+
+                                <option value="31040102 - INTER-ACCOUNT TRANSFER">
+                                    31040102 - INTER-ACCOUNT TRANSFER
+                                </option>
+
+                                <option value="31040104 - REVENUE REMITTANCE">
+                                    31040104 - REVENUE REMITTANCE
+                                </option>
+
+                                <option value="31060101 - IMPREST">
+                                    31060101 - IMPREST
+                                </option>
+
+                                <option value="31060301 - SPECIAL IMPREST (SERVICE WIDE)">
+                                    31060301 - SPECIAL IMPREST (SERVICE WIDE)
+                                </option>
+
+                                <option value="00000000 - UNPAID VOUCHERS">
+                                    00000000 - UNPAID VOUCHERS
+                                </option>
+
+                                @if (!string.IsNullOrEmpty(Model.ClassificationCode))
+                                {
+                                    <option value="@Model.ClassificationCode"
+                                            selected="selected">
+                                        @Model.ClassificationCode
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Source Classification Code</label>
+
+                            <select asp-for="SourceClassificationCode">
+
+                                <option value="">
+                                    -- Select Source --
+                                </option>
+
+                                <option value="IGR">
+                                    IGR
+                                </option>
+
+                                <option value="FEDERAL GOVERNMENT">
+                                    FEDERAL GOVERNMENT
+                                </option>
+
+                                <option value="DONOR AGENCY">
+                                    DONOR AGENCY
+                                </option>
+
+                                <option value="NHIA">
+                                    NHIA
+                                </option>
+
+                                <option value="SPECIAL FUND">
+                                    SPECIAL FUND
+                                </option>
+
+                                @if (!string.IsNullOrEmpty(Model.SourceClassificationCode))
+                                {
+                                    <option value="@Model.SourceClassificationCode"
+                                            selected="selected">
+                                        @Model.SourceClassificationCode
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Date</label>
+
+                            <input type="date"
+                                   asp-for="Date"
+                                   value="@(Model != null && Model.Date != DateTime.MinValue
+                                                                          ? Model.Date.ToString("yyyy-MM-dd")
+                                                                          : "")"
+                                   required />
+
+                        </div>
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- =====================================================
+                     2. PAYEE INFORMATION
+                     ===================================================== -->
+
+                <fieldset class="form-group-section">
+
+                    <legend>
+                        2. Payee Information & Preparation Details
+                    </legend>
+
+                    <div class="form-grid">
+
+                        <div class="form-field full-width">
+
+                            <label>Payee</label>
+
+                            <input asp-for="Payee"
+                                   placeholder="Payee Name"
+                                   required />
+
+                        </div>
+
+                        <div class="form-field full-width">
+
+                            <label>Address</label>
+
+                            <input asp-for="Address"
+                                   placeholder="Address"
+                                   required />
+
+                        </div>
+
+                        <div class="form-field full-width">
+
+                            <label>Description</label>
+
+                            <textarea asp-for="Description"
+                                      rows="4"
+                                      required></textarea>
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>First Name (Preparer)</label>
+
+                            <input asp-for="Voucher_FirstName"
+                                   type="text" />
+
+                        </div>
+
+                        <div class="form-field">
+
+                            <label>Surname (Preparer)</label>
+
+                            <input asp-for="Voucher_Surname"
+                                   type="text" />
+
+                        </div>
+
+                        <div class="form-field full-width">
+
+                            <label>Designation</label>
+
+                            <input asp-for="Voucher_Designation"
+                                   type="text" />
+
+                        </div>
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- =====================================================
+                     3. FINANCIAL DETAILS
+                     ===================================================== -->
+
+                <fieldset class="form-group-section">
+
+                    <legend>
+                        3. Financial & Deduction Details
+                    </legend>
+
+                    <div class="form-grid">
+
+                        <!-- VOUCHER AMOUNT -->
+
+                        <div class="form-field full-width">
+
+                            <label>
+                                Voucher (Gross) Amount 
+                            </label>
+
+                            <input type="number"
+                                   step="0.01"
+                                   asp-for="Amount"
+                                   id="Amount"
+                                   placeholder="0.00"
+                                   required
+                                   class="amount-input"
+                                   autocomplete="off" />
+
+                        </div>
+
+
+                        <!-- VAT -->
+
+                        <div class="form-field">
+
+                            <label>FGN VAT (%)</label>
+
+                            <input type="text"
+                                   id="vatOption"
+                                   name="vatOption"
+                                   value="@ViewBag.VatOption" />
+
+                        </div>
+
+
+                        <!-- FGN WHT -->
+
+                        <div class="form-field">
+
+                            <label>FGN WHT (%)</label>
+
+                            <input type="text"
+                                   id="fgn_whtOption"
+                                   name="fgn_whtOption"
+                                   value="@ViewBag.FgnWhtOption" />
+
+                        </div>
+
+
+                        <!-- EDG WHT -->
+
+                        <div class="form-field">
+
+                            <label>EDG WHT (%)</label>
+
+                            <input type="text"
+                                   id="edg_whtOption"
+                                   name="edg_whtOption"
+                                   value="@ViewBag.EdgWhtOption" />
+
+                        </div>
+
+
+                        <!-- STAMP -->
+
+                        <div class="form-field">
+
+                            <label>Stamp Duty (%)</label>
+
+                            <input type="text"
+                                   id="stampOption"
+                                   name="stampOption"
+                                   value="@ViewBag.StampOption" />
+
+                        </div>
+
+
+                        <!-- VAT BASIS -->
+
+                        <div class="form-field full-width">
+
+                            <label style="margin-bottom: 8px;">
+                                VAT Calculation Basis
+                                <span style="color: red;">*</span>
+                            </label>
+
+                            <div style="display: flex; gap: 20px; align-items: center;">
+
+                                <div class="checkbox-field">
+
+                                    <input type="radio"
+                                           id="vatInclusive"
+                                           name="isVatInclusive"
+                                           value="true"
+                                           required
+                                           checked />
+
+                                    <label for="vatInclusive">
+                                        FGN VAT Inclusive
+                                    </label>
+
+                                </div>
+
+                                <div class="checkbox-field">
+
+                                    <input type="radio"
+                                           id="vatExclusive"
+                                           name="isVatInclusive"
+                                           value="false"
+                                           required />
+
+                                    <label for="vatExclusive">
+                                        FGN VAT Exclusive
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- ACTIONS -->
+
+                <div class="actions-area">
+
+                    <button type="submit">
+                        Save Changes
+                    </button>
+
+                    <a asp-action="AuditQueriedVouchers"
+                       class="close-btn">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            /* =====================================================
+               CLASSIFICATION SELECT2
+               ===================================================== */
+
+            $('#ClassificationCode').select2({
+                placeholder: "-- Select or Type Classification Code --",
+                allowClear: true,
+                tags: true
+            });
+
+
+            /* =====================================================
+               PREVENT MOUSE WHEEL FROM CHANGING VOUCHER AMOUNT
+
+               IMPORTANT:
+               - Mouse wheel cannot change the amount.
+               - Keyboard typing remains enabled.
+               - Keyboard Arrow Up/Down remains enabled.
+               - The field remains editable.
+               ===================================================== */
+
+            const amountInput = document.getElementById('Amount');
+
+            if (amountInput) {
+
+                amountInput.addEventListener('wheel', function (event) {
+
+                    // Completely stop the browser from processing
+                    // the wheel event on the number input.
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                }, {
+                    passive: false
+                });
+
+                /*
+                 * Additional protection for browsers that process
+                 * wheel events at the document level.
+                 */
+                amountInput.addEventListener('mousewheel', function (event) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                }, {
+                    passive: false
+                });
+
+                amountInput.addEventListener('DOMMouseScroll', function (event) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                }, {
+                    passive: false
+                });
+
+            }
+
+
+            /* =====================================================
+               VAT VALIDATION
+               ===================================================== */
+
+            $('#voucherForm').on('submit', function (e) {
+
+                if (!$('input[name="isVatInclusive"]:checked').length) {
+
+                    e.preventDefault();
+
+                    alert(
+                        'Please select either FGN VAT Inclusive or FGN VAT Exclusive before saving changes.'
+                    );
+
+                    return false;
+                }
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>

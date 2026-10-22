@@ -1,0 +1,654 @@
+﻿@model FullVoucherSystem.Models.Voucher
+
+@{
+    Layout = null;
+
+    var predefinedCodes = new List<string> {
+        "21010102", "21020101", "22010103", "22020101", "22020102", "22020103",
+        "22020201", "22020202", "22020203", "22020301", "22020303", "22020304",
+        "22020305", "22020307.1", "22020307.2", "22020307.3", "22020307.4", "22020307.6",
+        "22020307.7", "22020307.9", "22020307.10", "22020307.11", "22020307.12",
+        "22020307.13", "22020307.14", "22020307.15", "22020307.16", "22020307.19",
+        "22020307.21", "22020307.22", "22020307.23", "22020307.24", "22020307.25",
+        "22020307.28", "22020307.29", "22020307.31", "22020307.32", "22020309",
+        "22020311", "22020401", "22020402", "22020403", "22020404", "22020405",
+        "22020406", "22020406.2", "22020406.3", "22020406.4", "22020406.5",
+        "22020406.6", "22020406.7", "22020406.8", "22020406.9", "22020406.10",
+        "22020406.11", "22020406.12", "22020501.1", "22020501.2", "22020501.3",
+        "22020501.4", "22020501.11", "22020501.12", "22020601", "22020604",
+        "22020605.1", "22020605.2", "22020701", "22020702", "22020703",
+        "22020704", "22020708", "22020801", "22020803", "22020803.2",
+        "22020806", "22020902", "22021001", "22021002.1", "22021002.2",
+        "22021002.3", "22021003", "22021004", "22021006", "22021007.1",
+        "22021007.3", "22021007.4", "22021008", "22021009", "22021011",
+        "22021013", "22021014", "22021041", "23050101", "31040102",
+        "31040104", "31060101", "31060301", "00000000"
+    };
+
+    bool isCustomValue = !string.IsNullOrEmpty(Model?.ClassificationCode) && !predefinedCodes.Contains(Model.ClassificationCode);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voucher Entry - UBTH</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 3px solid #2e7d32;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 55px;
+                height: auto;
+            }
+
+            .logo-area h2 {
+                margin: 0 0 0 15px;
+                color: #2e7d32;
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+        .user-info {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 15px;
+            background-color: #e8f5e9;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .form-box {
+            background: #ffffff;
+            padding: 35px 40px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-title {
+            text-align: center;
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+            .form-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60px;
+                height: 3px;
+                background-color: #2e7d32;
+                border-radius: 2px;
+            }
+
+        .form-group-section {
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px 22px 15px 22px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+            .form-group-section legend {
+                padding: 0 12px;
+                color: #1b5e20;
+                font-size: 16px;
+                font-weight: 700;
+                text-transform: uppercase;
+                background-color: #ffffff;
+                border: 1px solid #a5d6a7;
+                border-radius: 4px;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-field.full-width {
+                grid-column: span 2;
+            }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+            .checkbox-field input[type="checkbox"], .checkbox-field input[type="radio"] {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+                accent-color: #2e7d32;
+            }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #424242;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                outline: none;
+                border-color: #2e7d32;
+                box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+            }
+
+            /* Hides Up/Down arrows (spinners) on numeric input fields */
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
+
+        .readonly-box {
+            background-color: #f1f8e9 !important;
+            font-weight: 700;
+            color: #2e7d32;
+            border-color: #a5d6a7;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            min-height: 40px !important;
+            border: 1px solid #bdc3c7 !important;
+            border-radius: 6px !important;
+            display: flex !important;
+            align-items: center;
+        }
+
+        .actions-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button[type="submit"] {
+            flex: 2;
+            padding: 12px 20px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+            button[type="submit"]:hover {
+                background-color: #1b5e20;
+            }
+
+        .close-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: #616161;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #2e7d32;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        /* Blinking animation for critical red error messages */
+        @@keyframes blinkAlert {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.15;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .blinking-error-banner {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 2px solid #d32f2f;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: blinkAlert 1s infinite;
+        }
+    </style>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="blinking-error-banner">
+            ⚠️ @ViewBag.ErrorMessage
+        </div>
+    }
+</head>
+<body>
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <h2>UBTH Voucher System</h2>
+        </div>
+        <div class="user-info">@ViewBag.Surname @ViewBag.FirstName</div>
+    </div>
+
+    <div class="container">
+        <div class="form-box">
+            <h2 class="form-title">Voucher Entry Form</h2>
+
+            <form asp-controller="Voucher" asp-action="@(Model != null && Model.Id > 0 ? "Edit" : "Create")" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model?.Id" />
+
+                <fieldset class="form-group-section">
+                    <legend>1. Voucher & Classification Details</legend>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="voucherType">Voucher Type</label>
+                            <select name="VoucherType" id="voucherType" onchange="generateVoucherNumber()" required>
+                                <option value="">-- Select Voucher Type --</option>
+                                <option value="S" @(Model?.VoucherType == "S" ? "selected" : "")>S - STAFF</option>
+                                <option value="SA" @(Model?.VoucherType == "SA" ? "selected" : "")>SA - STAFF ADVANCES</option>
+                                <option value="SA-2" @(Model?.VoucherType == "SA-2" ? "selected" : "")>SA-2 - STAFF ADVANCES-IMPREST</option>
+                                <option value="E" @(Model?.VoucherType == "E" ? "selected" : "")>E - EXTERNAL</option>
+                                <option value="EE" @(Model?.VoucherType == "EE" ? "selected" : "")>EE - EXTERNAL ENGINEERING</option>
+                                <option value="ES" @(Model?.VoucherType == "ES" ? "selected" : "")>ES - EXTERNAL SUPPLY</option>
+                                <option value="EL" @(Model?.VoucherType == "EL" ? "selected" : "")>EL - EXTERNAL LABOURATORY</option>
+                                <option value="EP" @(Model?.VoucherType == "EP" ? "selected" : "")>EP - EXTERNAL PHARMACY</option>
+                                <option value="ER" @(Model?.VoucherType == "ER" ? "selected" : "")>ER - EXTERNAL RADIOLOGY</option>
+                                <option value="ICH" @(Model?.VoucherType == "ICH" ? "selected" : "")>ICH - INSTITUTE OF CHILD HEALTH</option>
+                                <option value="C" @(Model?.VoucherType == "C" ? "selected" : "")>C - CAPITAL</option>
+                                <option value="C2" @(Model?.VoucherType == "C2" ? "selected" : "")>C2 - IGR CAPITAL</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="voucherNumber">Voucher Number</label>
+                            <input type="text" name="VoucherNumber" id="voucherNumber" class="readonly-box" value="@Model?.VoucherNumber" readonly />
+                        </div>
+
+                        <div class="form-field">
+                            <label>Checked Location</label>
+                            <input name="CheckedLocation" value="@(string.IsNullOrWhiteSpace(Model?.CheckedLocation) ? "BENIN CITY" : Model.CheckedLocation)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label>Station</label>
+                            <input name="Station" value="@(string.IsNullOrWhiteSpace(Model?.Station) ? "BENIN CITY" : Model.Station)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label for="accountCode">Account Code</label>
+                            <select name="AccountCode" id="accountCode">
+                                <option value="">-- Select Account Code --</option>
+                                <option value="001" @(Model?.AccountCode == "001" ? "selected" : "")>001</option>
+                                <option value="002" @(Model?.AccountCode == "002" ? "selected" : "")>002</option>
+                                <option value="003" @(Model?.AccountCode == "003" ? "selected" : "")>003</option>
+                                <option value="004" @(Model?.AccountCode == "004" ? "selected" : "")>004</option>
+                                <option value="005" @(Model?.AccountCode == "005" ? "selected" : "")>005</option>
+                                <option value="006" @(Model?.AccountCode == "006" ? "selected" : "")>006</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Head</label>
+                            <input name="Head" value="@(string.IsNullOrWhiteSpace(Model?.Head) ? "0521" : Model.Head)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label>Sub Head</label>
+                            <input name="SubHead" value="@(string.IsNullOrWhiteSpace(Model?.SubHead) ? "026006" : Model.SubHead)" />
+                        </div>
+
+                        <div class="form-field full-width">
+                            <label for="ClassificationCode">Classification Code</label>
+                            <select id="ClassificationCode" name="ClassificationCode">
+                                <option value="">-- Select or Type Classification Code --</option>
+                                @if (isCustomValue)
+                                {
+                                    <option value="@Model.ClassificationCode" selected="selected">@Model.ClassificationCode</option>
+                                }
+                                <option value="230101" @(Model?.ClassificationCode == "230101" ? "selected" : "")>230101 - PURCHASE OF FIXED ASSETS - GENERAL</option>
+                                <option value="23010105" @(Model?.ClassificationCode == "23010105" ? "selected" : "")>23010105 - PURCHASE OF MOTOR VEHICLES</option>
+                                <option value="23010106" @(Model?.ClassificationCode == "23010106" ? "selected" : "")>23010106 - PURCHASE OF VANS</option>
+                                <option value="23010107" @(Model?.ClassificationCode == "23010107" ? "selected" : "")>23010107 - PURCHASE OF TRUCKS</option>
+                                <option value="23010112.1" @(Model?.ClassificationCode == "23010112.1" ? "selected" : "")>23010112.1 - OFFICE EQUIPMENTS (A/C, FRIDGES, FANS ETC)</option>
+                                <option value="23010112.2" @(Model?.ClassificationCode == "23010112.2" ? "selected" : "")>23010112.2 - OFFICE FURNITURES AND FITTINGS (WARDS)</option>
+                                <option value="23010112.4" @(Model?.ClassificationCode == "23010112.4" ? "selected" : "")>23010112.4 - OFFICE FURNITURES AND FITTINGS (GUEST HOUSE)</option>
+                                <option value="23010112.5" @(Model?.ClassificationCode == "23010112.5" ? "selected" : "")>23010112.5 - OFFICE FURNITURES AND FITTINGS (OFFICES)</option>
+                                <option value="23010112.6" @(Model?.ClassificationCode == "23010112.6" ? "selected" : "")>23010112.6 - OFFICE FURNITURES AND FITTINGS OTHERS</option>
+                                <option value="23010113" @(Model?.ClassificationCode == "23010113" ? "selected" : "")>23010113 - PURCHASE OF COMPUTERS</option>
+                                <option value="23010114" @(Model?.ClassificationCode == "23010114" ? "selected" : "")>23010114 - PURCHASE OF COMPUTER PRINTERS</option>
+                                <option value="23010115" @(Model?.ClassificationCode == "23010115" ? "selected" : "")>23010115 - PURCHASE OF PHOTOCOPYING MACHINES</option>
+                                <option value="23010118" @(Model?.ClassificationCode == "23010118" ? "selected" : "")>23010118 - PURCHASE OF SCANNERS</option>
+                                <option value="23010119" @(Model?.ClassificationCode == "23010119" ? "selected" : "")>23010119 - PURCHASE OF POWER GENERATING SET</option>
+                                <option value="23010120" @(Model?.ClassificationCode == "23010120" ? "selected" : "")>23010120 - PURCHASE OF KITCHEN EQUIPMENT</option>
+                                <option value="23010122.2" @(Model?.ClassificationCode == "23010122.2" ? "selected" : "")>23010122.2 - ENGINEERING EQUIPMENTS</option>
+                                <option value="23010122.3" @(Model?.ClassificationCode == "23010122.3" ? "selected" : "")>23010122.3 - PURCHASE OF LABORATORY EQUIPMENTS</option>
+                                <option value="23010122.4" @(Model?.ClassificationCode == "23010122.4" ? "selected" : "")>23010122.4 - HOLTICULTURE UNIT</option>
+                                <option value="23010122.5" @(Model?.ClassificationCode == "23010122.5" ? "selected" : "")>23010122.5 - XRAY EQUIPMENTS</option>
+                                <option value="23010122.15" @(Model?.ClassificationCode == "23010122.15" ? "selected" : "")>23010122.15 - PURCHASE OF DENTAL EQUIPMENTS</option>
+                                <option value="23010123" @(Model?.ClassificationCode == "23010123" ? "selected" : "")>23010123 - MEDICAL AND SURGICAL EQUIPMENT</option>
+                                <option value="23010122.7" @(Model?.ClassificationCode == "23010122.7" ? "selected" : "")>23010122.7 - PURCHASE OF MEDICAL & SURGICAL EQUIPMENTS</option>
+                                <option value="23010122.1" @(Model?.ClassificationCode == "23010122.1" ? "selected" : "")>23010122.1 - PURCHASE OF ENGINEERING EQUIPMENT</option>
+                                <option value="23010122.9" @(Model?.ClassificationCode == "23010122.9" ? "selected" : "")>23010122.9 - BOREHOLE AND SUBMERSIBLE PUMP</option>
+                                <option value="23010122.16" @(Model?.ClassificationCode == "23010122.16" ? "selected" : "")>23010122.16 - PURCHASE OF OPTHAMOLOGY EQUIPMENTS</option>
+                                <option value="23010122.17" @(Model?.ClassificationCode == "23010122.17" ? "selected" : "")>23010122.17 - PURCHASE OF OTHER MEDICAL EQUIPMENT</option>
+                                <option value="23010122.18" @(Model?.ClassificationCode == "23010122.18" ? "selected" : "")>23010122.18 - OTHER MEDICAL EQUIPMENTS</option>
+                                <option value="23010124" @(Model?.ClassificationCode == "23010124" ? "selected" : "")>23010124 - PURCHASE OF LIBRARY BOOKS AND EQUIPMENT</option>
+                                <option value="23010126" @(Model?.ClassificationCode == "23010126" ? "selected" : "")>23010126 - PURCHASE OF SPORTING/GAMING EQUIPMENT</option>
+                                <option value="23020103" @(Model?.ClassificationCode == "23020103" ? "selected" : "")>23020103 - CONSTRUCTION/ PROVISION OF ELECTRICITY</option>
+                                <option value="23030102" @(Model?.ClassificationCode == "23030102" ? "selected" : "")>23030102 - REHABILITATION/REPAIRS-ELECTRICITY</option>
+                                <option value="23010128" @(Model?.ClassificationCode == "23010128" ? "selected" : "")>23010128 - PURCHASE OF INDUSTRIAL EQUIPMENT</option>
+                                <option value="230201" @(Model?.ClassificationCode == "230201" ? "selected" : "")>230201 - CONSTRUCTION/PROVISION OF FIXED ASSETS - GENERAL</option>
+                                <option value="23020102" @(Model?.ClassificationCode == "23020102" ? "selected" : "")>23020102 - CONSTRUCTION/PROVISION OF RESIDENTIAL BUILDINGS</option>
+                                <option value="23020101" @(Model?.ClassificationCode == "23020101" ? "selected" : "")>23020101 - CONSTRUCTION/PROVISION OF OFFICE BUILDINGS</option>
+                                <option value="23020105" @(Model?.ClassificationCode == "23020105" ? "selected" : "")>23020105 - CONSTRUCTION/PROVISION OF WATER</option>
+                                <option value="23020106" @(Model?.ClassificationCode == "23020106" ? "selected" : "")>23020106 - CONSTRUCTION/PROVISION OF HOSPITALS / HEALTH CENTRES</option>
+                                <option value="23030105" @(Model?.ClassificationCode == "23030105" ? "selected" : "")>23030105 - REHABILITATION/REPAIRS-HOSPITAL/HEALTH CENTRES</option>
+                                <option value="23020114" @(Model?.ClassificationCode == "23020114" ? "selected" : "")>23020114 - CONSTRUCTION/PROVISION OF ROAD</option>
+                                <option value="23020118" @(Model?.ClassificationCode == "23020118" ? "selected" : "")>23020118 - CONSTRUCTION/PROVISION OF INFRASTRUCTURE- HOUSING</option>
+                                <option value="23020122" @(Model?.ClassificationCode == "23020122" ? "selected" : "")>23020122 - CONSTRUCTION OF SHOPPING COMPLEX</option>
+                                <option value="23030101" @(Model?.ClassificationCode == "23030101" ? "selected" : "")>23030101 - REHABILITATION/REPAIRS OF RESIDENTIAL BUILDING</option>
+                                <option value="23050102" @(Model?.ClassificationCode == "23050102" ? "selected" : "")>23050102 - COMPUTER SOFTWARE ACQUISITION</option>
+                                <option value="23050101" @(Model?.ClassificationCode == "23050101" ? "selected" : "")>23050101 - RESEARCH AND DEVELOPMENT</option>
+                                <option value="23050104" @(Model?.ClassificationCode == "23050104" ? "selected" : "")>23050104 - ANNIVERSARIES/CELEBRATIONS</option>
+                                <option value="21010102" @(Model?.ClassificationCode == "21010102" ? "selected" : "")>21010102 - OVERTIME PAYMENTS</option>
+                                <option value="21020101" @(Model?.ClassificationCode == "21020101" ? "selected" : "")>21020101 - NON REGULAR ALLOWANCES (UNIFORM ALLOWANCES, NYSC ALLOWANCE)</option>
+                                <option value="22010103" @(Model?.ClassificationCode == "22010103" ? "selected" : "")>22010103 - DEATH BENEFITS</option>
+                                <option value="22020101" @(Model?.ClassificationCode == "22020101" ? "selected" : "")>22020101 - LOCAL TRAVEL & TRANSPORT: TRAINING</option>
+                                <option value="22020102" @(Model?.ClassificationCode == "22020102" ? "selected" : "")>22020102 - LOCAL TRAVEL & TRANSPORT: OTHERS</option>
+                                <option value="22020103" @(Model?.ClassificationCode == "22020103" ? "selected" : "")>22020103 - INTERNATIONAL TRAVEL & TRANSPORT: TRAINING</option>
+                                <option value="22020201" @(Model?.ClassificationCode == "22020201" ? "selected" : "")>22020201 - ELECTRICITY CHARGES</option>
+                                <option value="22020202" @(Model?.ClassificationCode == "22020202" ? "selected" : "")>22020202 - TELEPHONE CHARGES</option>
+                                <option value="22020203" @(Model?.ClassificationCode == "22020203" ? "selected" : "")>22020203 - INTERNET ACCESS CHARGES</option>
+                                <option value="22020301" @(Model?.ClassificationCode == "22020301" ? "selected" : "")>22020301 - OFFICE STATIONERIES / COMPUTER CONSUMABLES</option>
+                                <option value="22020303" @(Model?.ClassificationCode == "22020303" ? "selected" : "")>22020303 - NEWSPAPERS</option>
+                                <option value="22020304" @(Model?.ClassificationCode == "22020304" ? "selected" : "")>22020304 - MAGAZINES & PERIODICALS</option>
+                                <option value="22020305" @(Model?.ClassificationCode == "22020305" ? "selected" : "")>22020305 - PRINTING OF NON SECURITY DOCUMENTS</option>
+                                <option value="22020307.1" @(Model?.ClassificationCode == "22020307.1" ? "selected" : "")>22020307.1 - DRUGS</option>
+                                <option value="22020307.2" @(Model?.ClassificationCode == "22020307.2" ? "selected" : "")>22020307.2 - BLOOD TRANSFUSION/ HEAMATOLOGY</option>
+                                <option value="22020307.3" @(Model?.ClassificationCode == "22020307.3" ? "selected" : "")>22020307.3 - CHEMICAL PATHOLOGY</option>
+                                <option value="22020307.4" @(Model?.ClassificationCode == "22020307.4" ? "selected" : "")>22020307.4 - ELECTROCARDIOGRAM (E.C.G.)</option>
+                                <option value="22020307.6" @(Model?.ClassificationCode == "22020307.6" ? "selected" : "")>22020307.6 - MICROBIOLOGY</option>
+                                <option value="22020307.7" @(Model?.ClassificationCode == "22020307.7" ? "selected" : "")>22020307.7 - MORBID ANATOMY & MORTUARY</option>
+                                <option value="22020307.9" @(Model?.ClassificationCode == "22020307.9" ? "selected" : "")>22020307.9 - O&G CONSUMABLES</option>
+                                <option value="22020307.11" @(Model?.ClassificationCode == "22020307.11" ? "selected" : "")>22020307.11 - OPTHAMOLOGY MATERIALS</option>
+                                <option value="22020307.12" @(Model?.ClassificationCode == "22020307.12" ? "selected" : "")>22020307.12 - X RAY CONSUMABLES & MATERIALS</option>
+                                <option value="22020307.13" @(Model?.ClassificationCode == "22020307.13" ? "selected" : "")>22020307.13 - SANITARY/CLEANING MATERIALS</option>
+                                <option value="22020307.14" @(Model?.ClassificationCode == "22020307.14" ? "selected" : "")>22020307.14 - BEDDING/LINEN/LAUNDRY CONSUMABLES</option>
+                                <option value="22020307.15" @(Model?.ClassificationCode == "22020307.15" ? "selected" : "")>22020307.15 - LAUNDRY CONSUMABLES</option>
+                                <option value="22020307.16" @(Model?.ClassificationCode == "22020307.16" ? "selected" : "")>22020307.16 - OCCUPATIONAL THERAPY MATERIALS</option>
+                                <option value="22020307.19" @(Model?.ClassificationCode == "22020307.19" ? "selected" : "")>22020307.19 - THEATRE/SURGICAL EQUIPTMENT & MATERIALS</option>
+                                <option value="22020307.21" @(Model?.ClassificationCode == "22020307.21" ? "selected" : "")>22020307.21 - DENTAL STORES & CONSUMABLES</option>
+                                <option value="22020307.22" @(Model?.ClassificationCode == "22020307.22" ? "selected" : "")>22020307.22 - RENAL STORES & CONSUMABLES</option>
+                                <option value="22020307.23" @(Model?.ClassificationCode == "22020307.23" ? "selected" : "")>22020307.23 - DRESSING/MEDICAL STORES</option>
+                                <option value="22020307.24" @(Model?.ClassificationCode == "22020307.24" ? "selected" : "")>22020307.24 - ANAESTHESOLOGY MATERIALS</option>
+                                <option value="22020307.25" @(Model?.ClassificationCode == "22020307.25" ? "selected" : "")>22020307.25 - PHYSIOTHERAPY MATERIALS</option>
+                                <option value="22020307.28" @(Model?.ClassificationCode == "22020307.28" ? "selected" : "")>22020307.28 - MEDICAL GASES</option>
+                                <option value="22020307.29" @(Model?.ClassificationCode == "22020307.29" ? "selected" : "")>22020307.29 - OTHER MATERIALS & SUPPLIES</option>
+                                <option value="22020307.31" @(Model?.ClassificationCode == "22020307.31" ? "selected" : "")>22020307.31 - CHC OGBONNA</option>
+                                <option value="22020307.32" @(Model?.ClassificationCode == "22020307.32" ? "selected" : "")>22020307.32 - CHC UDO</option>
+                                <option value="22020309" @(Model?.ClassificationCode == "22020309" ? "selected" : "")>22020309 - UNIFORMS & OTHER CLOTHING</option>
+                                <option value="22020311" @(Model?.ClassificationCode == "22020311" ? "selected" : "")>22020311 - FOOD STUFF / CATERING MATERIALS SUPPLIES</option>
+                                <option value="22020401" @(Model?.ClassificationCode == "22020401" ? "selected" : "")>22020401 - MAINTENANCE OF MOTOR VEHICLE / TRANSPORT EQUIPMENT</option>
+                                <option value="22020402" @(Model?.ClassificationCode == "22020402" ? "selected" : "")>22020402 - MAINTENANCE OF OFFICE FURNITURE</option>
+                                <option value="22020403" @(Model?.ClassificationCode == "22020403" ? "selected" : "")>22020403 - MAINTENANCE OF OFFICE BUILDING / RESIDENTIAL QTRS</option>
+                                <option value="22020404" @(Model?.ClassificationCode == "22020404" ? "selected" : "")>22020404 - MAINTENANCE OF OFFICE / IT EQUIPMENTS</option>
+                                <option value="22020405" @(Model?.ClassificationCode == "22020405" ? "selected" : "")>22020405 - MAINTENANCE OF PLANTS/GENERATORS</option>
+                                <option value="22020406" @(Model?.ClassificationCode == "22020406" ? "selected" : "")>22020406 - OTHER MAINTENANCE SERVICES</option>
+                                <option value="22020406.2" @(Model?.ClassificationCode == "22020406.2" ? "selected" : "")>22020406.2 - MAINTENANCE OF FURNITURE & FITTINGS (WARDS & CLINIC)</option>
+                                <option value="22020406.3" @(Model?.ClassificationCode == "22020406.3" ? "selected" : "")>22020406.3 - MAINTENANCE OF FURNITURE & FITTINGS (HOSTEL)</option>
+                                <option value="22020406.4" @(Model?.ClassificationCode == "22020406.4" ? "selected" : "")>22020406.4 - ELECTRICAL INSTALLATION & MAINTENANCE</option>
+                                <option value="22020406.5" @(Model?.ClassificationCode == "22020406.5" ? "selected" : "")>22020406.5 - ENGINEERING STORE, SUPPLIES & SPARE PARTS</option>
+                                <option value="22020406.6" @(Model?.ClassificationCode == "22020406.6" ? "selected" : "")>22020406.6 - LAUNDRY EQUIPTMENT MAINTENANCE</option>
+                                <option value="22020406.7" @(Model?.ClassificationCode == "22020406.7" ? "selected" : "")>22020406.7 - MAINTENANCE OF BORE HOLES</option>
+                                <option value="22020406.8" @(Model?.ClassificationCode == "22020406.8" ? "selected" : "")>22020406.8 - MAINTENANCE OF PRINTING MACHINE</option>
+                                <option value="22020406.9" @(Model?.ClassificationCode == "22020406.9" ? "selected" : "")>22020406.9 - RADIOLOGY MONITORING</option>
+                                <option value="22020406.1" @(Model?.ClassificationCode == "22020406.1" ? "selected" : "")>22020406.1 - MAINTENANCE OF HOSPITAL EQUIPMENT</option>
+                                <option value="22020406.11" @(Model?.ClassificationCode == "22020406.11" ? "selected" : "")>22020406.11 - MAINTENANCE OF SEWAGE LINES</option>
+                                <option value="22020406.12" @(Model?.ClassificationCode == "22020406.12" ? "selected" : "")>22020406.12 - OTHERS</option>
+                                <option value="22020501.1" @(Model?.ClassificationCode == "22020501.1" ? "selected" : "")>22020501.1 - LOCAL TRAINING</option>
+                                <option value="22020501.2" @(Model?.ClassificationCode == "22020501.2" ? "selected" : "")>22020501.2 - ACCREDITATION EXPENSES (MEDICAL & DENTAL)</option>
+                                <option value="22020501.3" @(Model?.ClassificationCode == "22020501.3" ? "selected" : "")>22020501.3 - POST GRADUATE EDUCATION (RESIDENCY)/RESEARCH GRANT & EXPENSES</option>
+                                <option value="22020501.4" @(Model?.ClassificationCode == "22020501.4" ? "selected" : "")>22020501.4 - COLLEGE OF NURSING SCIENCES</option>
+                                <option value="22020501.11" @(Model?.ClassificationCode == "22020501.11" ? "selected" : "")>22020501.11 - CHILDREN PLAY CENTRE</option>
+                                <option value="22020501.12" @(Model?.ClassificationCode == "22020501.12" ? "selected" : "")>22020501.12 - INSTITUTE OF HEALTH SCIENCES & TECHNOLOGY</option>
+                                <option value="22020601" @(Model?.ClassificationCode == "22020601" ? "selected" : "")>22020601 - SECURITY SERVICES</option>
+                                <option value="22020604" @(Model?.ClassificationCode == "22020604" ? "selected" : "")>22020604 - SECURITY VOTE (INCLUDING OPERATIONS)</option>
+                                <option value="22020605.1" @(Model?.ClassificationCode == "22020605.1" ? "selected" : "")>22020605.1 - CLEANING & FUMIGATION SERVICES</option>
+                                <option value="22020605.2" @(Model?.ClassificationCode == "22020605.2" ? "selected" : "")>22020605.2 - OUTSOURCED SERVICES</option>
+                                <option value="22020701" @(Model?.ClassificationCode == "22020701" ? "selected" : "")>22020701 - FINANCIAL CONSULTING</option>
+                                <option value="22020702" @(Model?.ClassificationCode == "22020702" ? "selected" : "")>22020702 - INFORMATION TECHNOLOGY CONSULTING</option>
+                                <option value="22020703" @(Model?.ClassificationCode == "22020703" ? "selected" : "")>22020703 - LEGAL SERVICES</option>
+                                <option value="22020704" @(Model?.ClassificationCode == "22020704" ? "selected" : "")>22020704 - ENGINEERING SERVICES</option>
+                                <option value="22020708" @(Model?.ClassificationCode == "22020708" ? "selected" : "")>22020708 - MEDICAL CONSULTING</option>
+                                <option value="22020801" @(Model?.ClassificationCode == "22020801" ? "selected" : "")>22020801 - MOTOR VEHICLE FUEL COST</option>
+                                <option value="22020803" @(Model?.ClassificationCode == "22020803" ? "selected" : "")>22020803 - PLANT / GENERATOR FUEL COST</option>
+                                <option value="22020803.2" @(Model?.ClassificationCode == "22020803.2" ? "selected" : "")>22020803.2 - SUPPLY OF ENGINE OIL/LUBRICANTS</option>
+                                <option value="22020806" @(Model?.ClassificationCode == "22020806" ? "selected" : "")>22020806 - COOKING GAS/FUEL COST</option>
+                                <option value="22020902" @(Model?.ClassificationCode == "22020902" ? "selected" : "")>22020902 - INSURANCE PREMIUM</option>
+                                <option value="22021001" @(Model?.ClassificationCode == "22021001" ? "selected" : "")>22021001 - REFRESHMENT & MEALS</option>
+                                <option value="22021002.1" @(Model?.ClassificationCode == "22021002.1" ? "selected" : "")>22021002.1 - HONORARIUM & SITTING ALLOWANCE</option>
+                                <option value="22021002.2" @(Model?.ClassificationCode == "22021002.2" ? "selected" : "")>22021002.2 - BOARD OF MANAGEMENT EXPENSES - ALLOWANCE & BOARDING & LODGING</option>
+                                <option value="22021002.3" @(Model?.ClassificationCode == "22021002.3" ? "selected" : "")>22021002.3 - SUPERVISION AND INSPECTION FEES</option>
+                                <option value="22021003" @(Model?.ClassificationCode == "22021003" ? "selected" : "")>22021003 - PUBLICITY & ADVERTISEMENTS</option>
+                                <option value="22021004" @(Model?.ClassificationCode == "22021004" ? "selected" : "")>22021004 - MEDICAL EXPENSES</option>
+                                <option value="22021006" @(Model?.ClassificationCode == "22021006" ? "selected" : "")>22021006 - POSTAGES & COURIER SERVICES</option>
+                                <option value="22021007.1" @(Model?.ClassificationCode == "22021007.1" ? "selected" : "")>22021007.1 - WELFARE PACKAGES</option>
+                                <option value="22021007.3" @(Model?.ClassificationCode == "22021007.3" ? "selected" : "")>22021007.3 - HOSPITALITY & ENTERTAINMENT</option>
+                                <option value="22021007.4" @(Model?.ClassificationCode == "22021007.4" ? "selected" : "")>22021007.4 - DONATION & CONTRIBUTIONS</option>
+                                <option value="22021008" @(Model?.ClassificationCode == "22021008" ? "selected" : "")>22021008 - SUBSCRIPTION TO PROFESSIONAL BODIES</option>
+                                <option value="22021009" @(Model?.ClassificationCode == "22021009" ? "selected" : "")>22021009 - SPORTING ACTIVITIES</option>
+                                <option value="22021011" @(Model?.ClassificationCode == "22021011" ? "selected" : "")>22021011 - RECRUITMENT AND APPOINTMENT (SERVICE WIDE)</option>
+                                <option value="22021013" @(Model?.ClassificationCode == "22021013" ? "selected" : "")>22021013 - PROMOTION (SERVICE WIDE)</option>
+                                <option value="22021014" @(Model?.ClassificationCode == "22021014" ? "selected" : "")>22021014 - ANNUAL BUDGET EXPENSES & ADMINISTRATION</option>
+                                <option value="22021041" @(Model?.ClassificationCode == "22021041" ? "selected" : "")>22021041 - CONTIGENCY</option>
+                                <option value="31040102" @(Model?.ClassificationCode == "31040102" ? "selected" : "")>31040102 - INTER ACCOUNT TRANSFER</option>
+                                <option value="31040104" @(Model?.ClassificationCode == "31040104" ? "selected" : "")>31040104 - REVENUE REMITTANCE</option>
+                                <option value="31060101" @(Model?.ClassificationCode == "31060101" ? "selected" : "")>31060101 - IMPREST</option>
+                                <option value="31060301" @(Model?.ClassificationCode == "31060301" ? "selected" : "")>31060301 - SPECIAL IMPREST (SERVICE WIDE)</option>
+                                <option value="0" @(Model?.ClassificationCode == "0" ? "selected" : "")>0 - UNPAID VOUCHERS</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Source Classification</label>
+                            <select name="SourceClassificationCode">
+                                <option value="">-- Select Source Classification --</option>
+                                <option value="IGR" @(Model?.SourceClassificationCode == "IGR" ? "selected" : "")>IGR</option>
+                                <option value="GIMIS" @(Model?.SourceClassificationCode == "GIMIS" ? "selected" : "")>GIMIS</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Date</label>
+                            <input type="date" name="Date" value="@(Model != null && Model.Date != DateTime.MinValue ? Model.Date.ToString("yyyy-MM-dd") : "")" required />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-group-section">
+                    <legend>2. Payee Information</legend>
+                    <div class="form-grid">
+                        <div class="form-field full-width">
+                            <label>Payee</label>
+                            <input name="Payee" value="@Model?.Payee" required />
+                        </div>
+                        <div class="form-field full-width">
+                            <label>Address</label>
+                            <input name="Address" value="@Model?.Address" required />
+                        </div>
+                        <div class="form-field full-width">
+                            <label>Description</label>
+                            <input name="Description" value="@Model?.Description" required />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="form-group-section">
+                    <legend>3. Financial & Deduction Details</legend>
+                    <div class="form-grid">
+                        <div class="form-field full-width">
+                            <label>Voucher Amount</label>
+                            <input type="number" step="0.01" name="Amount" value="@Model?.Amount" placeholder="0.00" required />
+                        </div>
+
+                        <div class="form-field">
+                            <label>FGN VAT (%)</label>
+                            <input type="text" id="vatOption" name="vatOption" value="@(string.IsNullOrEmpty(Model?.VatOption) ? "7.5%" : Model.VatOption)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label>FGN WHT (%)</label>
+                            <input type="text" id="fgn_whtOption" name="fgn_whtOption" value="@(string.IsNullOrEmpty(Model?.FgnWhtOption) ? "0%" : Model.FgnWhtOption)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label>EDG WHT (%)</label>
+                            <input type="text" id="edg_whtOption" name="edg_whtOption" value="@(string.IsNullOrEmpty(Model?.EdgWhtOption) ? "0%" : Model.EdgWhtOption)" />
+                        </div>
+
+                        <div class="form-field">
+                            <label>Stamp Duty (%)</label>
+                            <input type="text" id="stampOption" name="stampOption" value="@(string.IsNullOrEmpty(Model?.StampOption) ? "0%" : Model.StampOption)" />
+                        </div>
+
+                        <div class="form-field full-width">
+                            <label style="margin-bottom: 8px;">VAT Calculation Basis</label>
+                            <div style="display: flex; gap: 20px; align-items: center;">
+                                <div class="checkbox-field" style="margin-top: 0;">
+                                    <input type="radio" id="vatInclusive" name="isVatInclusive" value="true" @(ViewBag.SelectedVatInclusive == true ? "checked" : "") />
+                                    <label for="vatInclusive">FGN VAT Inclusive</label>
+                                </div>
+                                <div class="checkbox-field" style="margin-top: 0;">
+                                    <input type="radio" id="vatExclusive" name="isVatInclusive" value="false" @(ViewBag.SelectedVatInclusive == false ? "checked" : "") />
+                                    <label for="vatExclusive">FGN VAT Exclusive</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="actions-area">
+                    <button type="submit">@(Model != null && Model.Id > 0 ? "Update Voucher" : "Submit Voucher")</button>
+                    <a href="/Dashboard/Index" class="close-btn">Close</a>
+                </div>
+            </form>
+
+            @if (ViewBag.Message != null)
+            {
+                <div class="success-message">@ViewBag.Message</div>
+            }
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#ClassificationCode').select2({
+                placeholder: "-- Select or Type Classification Code --",
+                allowClear: true,
+                tags: true
+            });
+
+            // Prevent scroll wheel from changing number input values
+            $(document).on('wheel', 'input[type=number]', function (e) {
+                $(this).blur();
+            });
+        });
+
+        function generateVoucherNumber() {
+            var voucherType = document.getElementById("voucherType").value;
+            if (voucherType === "") return;
+
+            fetch('/Voucher/GenerateVoucherNumber?voucherType=' + voucherType)
+                .then(response => response.json())
+                .then(data => { document.getElementById("voucherNumber").value = data; })
+                .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

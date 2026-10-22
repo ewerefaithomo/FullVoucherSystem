@@ -1,0 +1,593 @@
+@using Microsoft.AspNetCore.Http
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Dashboard";
+
+    var role = Context.Session.GetString("Role");
+    var surname = Context.Session.GetString("Surname");
+    var firstName = Context.Session.GetString("FirstName");
+
+    if (string.IsNullOrWhiteSpace(role) ||
+        string.IsNullOrWhiteSpace(surname) ||
+        string.IsNullOrWhiteSpace(firstName))
+    {
+        Context.Response.Redirect("/Account/Login");
+        return;
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Dashboard - UBTH Voucher Portal</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f8f4;
+            color: #1e3d2f;
+        }
+
+        .header {
+            background-color: white;
+            border-bottom: 5px solid #0b7a43;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+            .header-left img {
+                width: 85px;
+                height: 85px;
+                object-fit: contain;
+                margin-right: 20px;
+            }
+
+        .portal-title {
+            color: #0b7a43;
+        }
+
+            .portal-title h1 {
+                margin: 0;
+                font-size: 28px;
+                font-weight: bold;
+            }
+
+            .portal-title p {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #4b6354;
+            }
+
+        .welcome-box {
+            color: #0b7a43;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            background-color: #b82c2c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+            .btn-logout:hover {
+                background-color: #912222;
+            }
+
+        .container {
+            width: 95%;
+            max-width: 1600px;
+            margin: 30px auto;
+        }
+
+        .welcome-card {
+            background-color: white;
+            padding: 25px;
+            border-left: 6px solid #0b7a43;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+            .welcome-card h2 {
+                margin-top: 0;
+                color: #0b7a43;
+            }
+
+            .welcome-card p {
+                font-size: 16px;
+                color: #555;
+                margin-bottom: 0;
+            }
+
+        .alert-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .menu-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid #0b7a43;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+            .menu-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+            }
+
+            .menu-card > a {
+                text-decoration: none;
+                color: #0b7a43;
+                font-size: 18px;
+                font-weight: bold;
+                display: block;
+            }
+
+            .menu-card a:focus-visible,
+            .budget-toggle:focus-visible {
+                outline: 2px solid #0b7a43;
+                outline-offset: 4px;
+            }
+
+            .menu-card p {
+                margin-top: 10px;
+                margin-bottom: 0;
+                color: #666;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+        /* Budget submenu toggle button */
+        .budget-toggle {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #0b7a43;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0;
+        }
+
+            .budget-toggle:hover {
+                color: #075b32;
+            }
+
+        .budget-arrow {
+            display: inline-block;
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .budget-toggle[aria-expanded="true"] .budget-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Budget submenu container */
+        .budget-submenu {
+            display: none;
+            margin-top: 18px;
+            border-top: 1px solid #dce8df;
+            padding-top: 12px;
+            text-align: left;
+        }
+
+            .budget-submenu.open {
+                display: block;
+            }
+
+            .budget-submenu a {
+                display: block;
+                padding: 12px 10px;
+                margin-bottom: 7px;
+                border-radius: 6px;
+                background-color: #f1f8f3;
+                color: #0b7a43;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: bold;
+                line-height: 1.45;
+                border-left: 3px solid #0b7a43;
+            }
+
+                .budget-submenu a:hover {
+                    background-color: #dcefe1;
+                    color: #064d2a;
+                }
+
+                .budget-submenu a:last-child {
+                    margin-bottom: 0;
+                }
+
+        .footer {
+            margin-top: 40px;
+            background-color: #0b7a43;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        @@media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header-left img {
+                width: 60px;
+                height: 60px;
+                margin-right: 12px;
+            }
+
+            .portal-title h1 {
+                font-size: 19px;
+            }
+
+            .portal-title p {
+                font-size: 12px;
+            }
+
+            .welcome-box {
+                width: 100%;
+                justify-content: space-between;
+                text-align: left;
+                flex-wrap: wrap;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <img src="@Url.Content("~/images/ubth-logo.jpeg")"
+                 alt="UBTH Logo" />
+
+            <div class="portal-title">
+                <h1>University of Benin Teaching Hospital</h1>
+                <p>Voucher Management Portal System</p>
+            </div>
+        </div>
+
+        <div class="welcome-box">
+            <div>
+                Welcome, <strong>@surname @firstName</strong>
+            </div>
+
+            <a href="/Account/Logout" class="btn-logout">
+                Log Out
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert-message">
+                @TempData["Message"]
+            </div>
+        }
+
+        <div class="welcome-card">
+            <h2>Dashboard</h2>
+
+            <p>
+                Welcome to the UBTH Voucher Management Portal.
+                Select an option below based on your role privileges
+                <strong>(@role)</strong>.
+            </p>
+        </div>
+
+        <div class="dashboard-grid">
+
+            @* BUDGET MENU WITH EXPANDABLE SUBMENU *@
+            <div class="menu-card budget-card">
+
+                <button type="button"
+                        id="budgetToggle"
+                        class="budget-toggle"
+                        aria-expanded="false"
+                        aria-controls="budgetSubmenu">
+
+                    <span>Budget</span>
+                    <span class="budget-arrow" aria-hidden="true">&#9662;</span>
+                </button>
+
+                <p>
+                    Manage budget allocations, classification codes,
+                    staff advances, other imprest and virement transactions.
+                </p>
+
+                <div id="budgetSubmenu" class="budget-submenu">
+
+                    <a href="/Budget/ManageIgrCapital">
+                        Manage Budget for IGR Funded Capital
+                    </a>
+
+                    <a href="/Budget/ManageOtherClassifications">
+                        Manage Budget for Other Classification Codes
+                    </a>
+
+                    <a href="/Budget/ManageStaffAdvances">
+                        Manage Budget for Other Staff Advances (SA-2)
+                    </a>
+
+                    @*<a href="/Budget/ManageOtherImprest">
+                        Manage Other Imprest (SA-2)
+                    </a>*@
+
+                    <a href="/Budget/VirementTransactions">
+                        VIREMENT TRANSACTIONS
+                    </a>
+
+                </div>
+            </div>
+
+            @if (role == "BILLING OFFICER")
+            {
+                <div class="menu-card">
+                    <a href="/Voucher/Create">Billing Menu</a>
+                    <p>Create and process initial voucher billings</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Register">Register Imprest Holder</a>
+                    <p>Register new imprest holder profiles</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/BillingCertification/QueriedVouchers">Queried Vouchers</a>
+                    <p>Review and correct billing query flags</p>
+                </div>
+            }
+            else if (role == "BILLING CERTIFICATION OFFICER")
+            {
+                <div class="menu-card">
+                    <a href="/BillingCertification/Index">Billing Certification Menu</a>
+                    <p>Verify and certify processed billing vouchers</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/AuditCertification/AuditQueriedVouchers">
+                        Queried Audit Vouchers
+                    </a>
+                    <p>Manage and resolve audit query requests</p>
+                </div>
+            }
+            else if (role == "AUDITOR")
+            {
+                <div class="menu-card">
+                    <a href="/AuditCertification/Index">Audit Menu</a>
+                    <p>Perform internal control and voucher audits</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+            }
+            else if (role == "CASH PAYMENT OFFICER")
+            {
+                <div class="menu-card">
+                    <a href="/Cashroom/Cashroom">Cash Room</a>
+                    <p>Process cash disbursement and payment records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+            }
+            else if (role == "FINAL LEDGER OFFICER")
+            {
+                <div class="menu-card">
+                    <a href="/FinalLedger/Index">Final Ledger</a>
+                    <p>Search, analyze, and export raised vs paid vouchers</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+            }
+            else if (
+            role == "HEAD OF DEPARTMENT" ||
+            role == "ADMIN" ||
+            role == "SUPER ADMIN")
+            {
+                <div class="menu-card">
+                    <a href="/Voucher/Create">Billing Menu</a>
+                    <p>Create and manage billing vouchers</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Voucher/LocateVoucher">Locate Voucher</a>
+                    <p>Search and locate voucher processing stages</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Register">Register Imprest Holder</a>
+                    <p>Register new imprest holder profiles</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/ImprestHolder/Search">Search Imprest Holder</a>
+                    <p>Look up existing imprest holder records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/BillingCertification/Index">
+                        Billing Certification Menu
+                    </a>
+                    <p>Verify and certify vouchers</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/BillingCertification/QueriedVouchers">
+                        Queried Vouchers
+                    </a>
+                    <p>Review billing query records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/AuditCertification/AuditQueriedVouchers">
+                        Queried Audit Vouchers
+                    </a>
+                    <p>Review audit query records</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/AuditCertification/Index">Audit Menu</a>
+                    <p>Audit and inspect voucher items</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/Cashroom/Cashroom">Cash Room</a>
+                    <p>Access cashroom processing</p>
+                </div>
+
+                <div class="menu-card">
+                    <a href="/FinalLedger/Index">
+                        Voucher Final Accounting &amp; Reconciliation
+                    </a>
+                    <p>Search, analyze, and export raised vs paid vouchers</p>
+                </div>
+
+                @if (role == "SUPER ADMIN")
+                {
+                    <div class="menu-card">
+                        <a href="/Account/Signup">Sign Up</a>
+                        <p>Register new system users and roles</p>
+                    </div>
+                }
+            }
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        UNIVERSITY OF BENIN TEACHING HOSPITAL
+        &copy; @DateTime.Now.Year Voucher Management System
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const budgetToggle = document.getElementById("budgetToggle");
+            const budgetSubmenu = document.getElementById("budgetSubmenu");
+
+            if (!budgetToggle || !budgetSubmenu) {
+                return;
+            }
+
+            budgetToggle.addEventListener("click", function () {
+                const isExpanded =
+                    budgetToggle.getAttribute("aria-expanded") === "true";
+
+                budgetToggle.setAttribute(
+                    "aria-expanded",
+                    (!isExpanded).toString()
+                );
+
+                budgetSubmenu.classList.toggle("open", !isExpanded);
+            });
+        });
+    </script>
+
+</body>
+</html>

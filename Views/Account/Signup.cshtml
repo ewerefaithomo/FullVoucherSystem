@@ -1,0 +1,153 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Signup - UBTH</title>
+
+    <style>
+
+        select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #a5d6a7;
+    border-radius: 5px;
+    background-color: white;
+    font-size: 14px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #2e7d32;
+}
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+            .header img {
+                width: 60px;
+            }
+
+            .header h2 {
+                margin-left: 10px;
+                color: #2e7d32;
+            }
+
+        /* Form Container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 85vh;
+        }
+
+        .form-box {
+            background: #ffffff;
+            padding: 30px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: #2e7d32;
+            }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2e7d32;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #1b5e20;
+            }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header with Logo -->
+    <div class="header">
+        <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+        <h2>UBTH User Registration</h2>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="container">
+        <div class="form-box">
+
+            <h2>Signup</h2>
+
+            <form method="post">
+                <input name="Surname" placeholder="Surname" required />
+                <input name="FirstName" placeholder="First Name" required />
+                <input name="Designation" placeholder="Designation" required />
+                <select name="Role" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="BILLING OFFICER">BILLING OFFICER</option>
+                    <option value="BILLING CERTIFICATION OFFICER">BILLING CERTIFICATION OFFICER</option>
+                    <option value="AUDITOR">AUDITOR</option>
+                    <option value="CASH PAYMENT OFFICER">CASH PAYMENT OFFICER</option>
+                    <option value="FINAL LEDGER OFFICER">FINAL LEDGER OFFICER</option>
+                    <option value="ADMIN">ADMIN</option>
+                    option value="SUPER ADMIN">SUPER ADMIN</option>
+                    <option value="HEAD OF DEPARTMENT">HEAD OF DEPARTMENT</option>
+                </select>
+                <input name="Username" placeholder="Username" required />
+                <input name="Password" type="password" placeholder="Password" required />
+
+                <button type="submit">Submit</button>
+            </form>
+
+            @if (ViewBag.Error != null)
+            {
+                <p class="error">@ViewBag.Error</p>
+            }
+
+        </div>
+    </div>
+
+</body>
+</html>

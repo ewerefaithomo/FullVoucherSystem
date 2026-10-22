@@ -1,0 +1,57 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace FullVoucherSystem.Models
+{
+    public class BillingCertification
+    {
+        public int Id { get; set; }
+
+        public string VoucherNumber { get; set; }
+        public string CheckedLocation { get; set; }
+        public string Station { get; set; }
+        public string AccountCode { get; set; }
+
+        public string Head { get; set; }
+        public string SubHead { get; set; }
+
+        public string ClassificationCode { get; set; }
+        public string SourceClassificationCode { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public decimal Amount { get; set; }
+
+        public string Payee { get; set; }
+
+        public string Address { get; set; }
+
+        public string Description { get; set; }
+
+        public int Qty { get; set; }
+
+        public decimal UnitPrice { get; set; }
+
+        public decimal FGN_WHT { get; set; }
+
+        public decimal EDG_WHT { get; set; }
+        public decimal VAT { get; set; }
+
+        public decimal StampDuty { get; set; }
+
+        public decimal TotalAmount { get; set; }
+
+        public string CertificationText { get; set; }
+
+        public string Voucher_Surname { get; set; }
+        public string Voucher_FirstName { get; set; }
+        public string Voucher_Designation { get; set; }
+
+        public string Bill_Surname { get; set; }
+        public string Bill_FirstName { get; set; }
+        public string Bill_Designation { get; set; }
+
+        public string QueryText { get; set; } = "NIL";
+
+    }
+}

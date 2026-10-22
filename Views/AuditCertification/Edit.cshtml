@@ -1,0 +1,978 @@
+﻿@model FullVoucherSystem.Models.Audit
+
+@{
+    Layout = null;
+
+    decimal grossAmount = Model != null
+        ? Model.Amount + Model.VAT
+        : 0;
+
+    string defaultQuery = string.IsNullOrWhiteSpace(Model?.QueryText)
+        ? "NIL"
+        : Model.QueryText;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Audit Certification - UBTH</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        }
+
+        /* =========================
+                   HEADER
+                ========================= */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 60px;
+                height: 60px;
+                object-fit: contain;
+            }
+
+            .logo-area h2 {
+                margin-left: 10px;
+                color: #2e7d32;
+                font-size: 21px;
+            }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .btn-dashboard {
+            background-color: #2e7d32;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+            .btn-dashboard:hover {
+                background-color: #1b5e20;
+            }
+
+
+        /* =========================
+                   CONTAINER
+                ========================= */
+
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            width: 650px;
+            max-width: 95%;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #2e7d32;
+            border-bottom: 1px solid #c8e6c9;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+
+
+        /* =========================
+                   FORM
+                ========================= */
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 9px;
+            margin-top: 5px;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+            input:focus,
+            textarea:focus,
+            select:focus {
+                outline: none;
+                border-color: #2e7d32;
+                box-shadow: 0 0 3px rgba(46,125,50,0.3);
+            }
+
+
+        /* =========================
+                   VOUCHER NUMBER
+                ========================= */
+
+        .voucher-number {
+            background-color: #eeeeee;
+            color: #555555;
+            cursor: not-allowed;
+            font-weight: bold;
+            border: 1px solid #bdbdbd;
+        }
+
+
+        /* =========================
+                   QUERY BOX
+                ========================= */
+
+        .query-box {
+            width: 100%;
+            min-height: 150px;
+            height: 180px;
+            font-size: 14px;
+            padding: 10px;
+            background-color: #ffffff;
+            resize: vertical;
+        }
+
+
+        /* =========================
+                   FINANCIAL AMOUNT FIELDS
+
+                   LEFT ALIGNMENT
+                   REMOVE NUMBER SPINNERS
+                ========================= */
+
+        .amount-input {
+            text-align: left !important;
+        }
+
+            /*
+                 * Remove the up/down spinner arrows
+                 * in Chrome, Edge, Safari and Opera.
+                 */
+
+            .amount-input::-webkit-outer-spin-button,
+            .amount-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+        /*
+                 * Remove number spinner appearance
+                 * in Firefox.
+                 */
+
+        .amount-input {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+
+        /* =========================
+                   READONLY INFORMATION
+                ========================= */
+
+        .readonly-info {
+            background-color: #f5f5f5;
+        }
+
+
+        /* =========================
+                   CERTIFICATION
+                ========================= */
+
+        .cert-box {
+            background: #f1f8f4;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c8e6c9;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+            .cert-box label {
+                margin-top: 0;
+                font-weight: normal;
+            }
+
+            .cert-box input[type="checkbox"] {
+                margin-right: 8px;
+                transform: scale(1.2);
+            }
+
+
+        /* =========================
+                   BUTTONS
+                ========================= */
+
+        .section {
+            margin-top: 20px;
+        }
+
+        button,
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        button {
+            background-color: #2e7d32;
+        }
+
+            button:hover:not(:disabled) {
+                background-color: #1b5e20;
+            }
+
+            button:disabled {
+                background-color: #9e9e9e;
+                cursor: not-allowed;
+            }
+
+        .query-button {
+            background-color: #dc3545;
+        }
+
+            .query-button:hover:not(:disabled) {
+                background-color: #b02a37;
+            }
+
+        .close-btn {
+            background-color: gray;
+        }
+
+            .close-btn:hover {
+                background-color: #555555;
+            }
+
+
+        /* =========================
+                   STATUS
+                ========================= */
+
+        .status-red {
+            color: red;
+            font-weight: bold;
+        }
+
+        .info-note {
+            background: #fffde7;
+            border: 1px solid #f0e68c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        hr {
+            margin: 25px 0;
+            border: none;
+            border-top: 1px solid #dddddd;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <div class="logo-area">
+
+            <img src="~/images/ubth-logo.jpeg"
+                 alt="UBTH Logo" />
+
+            <h2>
+                UBTH Voucher Records for Auditing
+            </h2>
+
+        </div>
+
+        <div class="user-info">
+
+            <a href="/Dashboard/Index"
+               class="btn-dashboard">
+                Back to Dashboard
+            </a>
+
+            <span>
+                @ViewBag.Surname @ViewBag.FirstName
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         CONTENT
+    ========================= -->
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>
+                Audit Certification Details
+            </h2>
+
+            <div class="info-note">
+
+                <strong>Important:</strong>
+                All voucher details may be amended where necessary.
+                However, the <strong>Voucher Number cannot be changed</strong>.
+
+            </div>
+
+
+            <form asp-action="Edit"
+                  asp-controller="AuditCertification"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Primary Key -->
+                <input asp-for="Id"
+                       type="hidden" />
+
+
+                <!-- =========================
+                     VOUCHER INFORMATION
+                ========================= -->
+
+                <h3>
+                    Voucher Information
+                </h3>
+
+
+                <!-- VOUCHER NUMBER - LOCKED -->
+
+                <label for="VoucherNumber">
+                    Voucher Number
+                </label>
+
+                <input type="text"
+                       id="VoucherNumber"
+                       name="VoucherNumber"
+                       value="@Model.VoucherNumber"
+                       readonly
+                       tabindex="-1"
+                       class="voucher-number" />
+
+
+                <!-- CHECKED LOCATION -->
+
+                <label asp-for="CheckedLocation">
+                    Checked Location
+                </label>
+
+                <input asp-for="CheckedLocation"
+                       type="text" />
+
+
+                <!-- STATION -->
+
+                <label asp-for="Station">
+                    Station
+                </label>
+
+                <input asp-for="Station"
+                       type="text" />
+
+
+                <!-- HEAD -->
+
+                <label asp-for="Head">
+                    Head
+                </label>
+
+                <input asp-for="Head"
+                       type="text" />
+
+
+                <!-- SUB HEAD -->
+
+                <label asp-for="SubHead">
+                    Sub Head
+                </label>
+
+                <input asp-for="SubHead"
+                       type="text" />
+
+
+                <!-- CLASSIFICATION CODE -->
+
+                <label asp-for="ClassificationCode">
+                    Classification Code
+                </label>
+
+                <input asp-for="ClassificationCode"
+                       type="text" />
+
+
+                <!-- SOURCE CLASSIFICATION -->
+
+                <label asp-for="SourceClassificationCode">
+                    Source Classification
+                </label>
+
+                <input asp-for="SourceClassificationCode"
+                       type="text" />
+
+
+                <!-- DATE -->
+
+                <label asp-for="Date">
+                    Date
+                </label>
+
+                <input asp-for="Date"
+                       type="date" />
+
+
+                <!-- CERTIFIED DATE -->
+
+                <label asp-for="CertifiedDate">
+                    Certified Date
+                </label>
+
+                <input asp-for="CertifiedDate"
+                       type="date" />
+
+
+                <!-- PAYEE -->
+
+                <label asp-for="Payee">
+                    Payee
+                </label>
+
+                <input asp-for="Payee"
+                       type="text" />
+
+
+                <!-- ADDRESS -->
+
+                <label asp-for="Address">
+                    Address
+                </label>
+
+                <input asp-for="Address"
+                       type="text" />
+
+
+                <!-- DESCRIPTION -->
+
+                <label asp-for="Description">
+                    Description
+                </label>
+
+                <textarea asp-for="Description"
+                          rows="5"></textarea>
+
+
+                <!-- =========================
+                     FINANCIAL INFORMATION
+                ========================= -->
+
+                <h3>
+                    Financial Information
+                </h3>
+
+
+                <!-- GROSS AMOUNT -->
+
+                <label>
+                    Gross Amount
+                </label>
+
+                <input type="text"
+                       id="GrossAmount"
+                       value="@grossAmount.ToString("N2")"
+                       readonly
+                       class="readonly-info amount-input" />
+
+
+                <!-- CONTRACT AMOUNT -->
+
+                <label asp-for="Amount">
+                    Contract Amount
+                </label>
+
+                <input asp-for="Amount"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <!-- VAT -->
+
+                <label asp-for="VAT">
+                    FGN VAT
+                </label>
+
+                <input asp-for="VAT"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <!-- FGN WHT -->
+
+                <label asp-for="FGN_WHT">
+                    FGN WHT
+                </label>
+
+                <input asp-for="FGN_WHT"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <!-- EDG WHT -->
+
+                <label asp-for="EDG_WHT">
+                    EDG WHT
+                </label>
+
+                <input asp-for="EDG_WHT"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <!-- STAMP DUTY -->
+
+                <label asp-for="StampDuty">
+                    Stamp Duty
+                </label>
+
+                <input asp-for="StampDuty"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <!-- NET AMOUNT -->
+
+                <label asp-for="TotalAmount">
+                    Net Amount
+                </label>
+
+                <input asp-for="TotalAmount"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="amount-input" />
+
+
+                <hr />
+
+
+                <!-- =========================
+                     QUERY INFORMATION
+                ========================= -->
+
+                <h3>
+                    Query Information
+                </h3>
+
+                <label for="Query">
+                    Query / Remark
+                </label>
+
+                <textarea name="QueryText"
+                          id="Query"
+                          class="query-box"
+                          rows="8"
+                          placeholder="Enter query, observations, corrections, remarks or reasons for withholding certification here. If no query, kindly type NIL.">@defaultQuery</textarea>
+
+
+                <!-- =========================
+                     CERTIFICATION
+                ========================= -->
+
+                <div class="cert-box">
+
+                    <label>
+
+                        <input type="checkbox"
+                               id="certify"
+                               name="certify"
+                               value="true"
+                               disabled />
+
+                        I certify that the above amount is correct,
+                        and was incurred under the Authority quoted;
+                        that the service has been duly performed;
+                        that the rate/price charged is according to
+                        regulations/contract and is fair and reasonable;
+                        that the amount is
+                        <b>@Model.Amount.ToString("N2")</b>
+                        Naira/Kobo may be paid under the Classification quoted.
+
+                    </label>
+
+                </div>
+
+
+                <!-- =========================
+                     ACTION BUTTONS
+                ========================= -->
+
+                <div class="section">
+
+                    <button type="submit"
+                            id="btnSubmit"
+                            disabled
+                            onclick="return confirm('Are you sure you want to certify this voucher and send it to Cash Room?');">
+
+                        Submit Certification
+
+                    </button>
+
+
+                    <button type="submit"
+                            formaction="/AuditCertification/SendToQuery"
+                            formmethod="post"
+                            id="btnQuery"
+                            class="query-button"
+                            disabled>
+
+                        Send To Query
+
+                    </button>
+
+
+                    <a href="/AuditCertification/Index"
+                       class="btn close-btn">
+
+                        Close
+
+                    </a>
+
+                </div>
+
+
+                <hr />
+
+
+                <!-- =========================
+                     STAFF INFORMATION
+                ========================= -->
+
+                <p>
+
+                    <b>Prepared By:</b>
+                    <br />
+
+                    @Model.Voucher_Surname
+                    @Model.Voucher_FirstName
+
+                    (@Model.Voucher_Designation)
+
+                </p>
+
+
+                <p>
+
+                    <b>Certified By:</b>
+                    <br />
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Bill_Surname))
+                    {
+                        @Model.Bill_Surname
+                        @Model.Bill_FirstName
+
+                        <text>
+                            (@Model.Bill_Designation)
+                        </text>
+                    }
+                    else
+                    {
+                        <span class="status-red">
+                            Not yet certified
+                        </span>
+                    }
+
+                </p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const queryBox =
+                document.getElementById("Query");
+
+            const certifyBox =
+                document.getElementById("certify");
+
+            const submitBtn =
+                document.getElementById("btnSubmit");
+
+            const queryBtn =
+                document.getElementById("btnQuery");
+
+            const amountInput =
+                document.getElementById("Amount");
+
+            const vatInput =
+                document.getElementById("VAT");
+
+            const grossAmountInput =
+                document.getElementById("GrossAmount");
+
+
+            /* =====================================================
+               UPDATE GROSS AMOUNT
+
+               Gross Amount =
+               Contract Amount + VAT
+               ===================================================== */
+
+            function updateGrossAmount() {
+
+                let amount =
+                    parseFloat(amountInput.value) || 0;
+
+                let vat =
+                    parseFloat(vatInput.value) || 0;
+
+                let gross =
+                    amount + vat;
+
+                grossAmountInput.value =
+                    gross.toLocaleString(
+                        "en-NG",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+            }
+
+
+            amountInput.addEventListener(
+                "input",
+                updateGrossAmount
+            );
+
+            vatInput.addEventListener(
+                "input",
+                updateGrossAmount
+            );
+
+
+            /* =====================================================
+               PREVENT MOUSE WHEEL FROM CHANGING AMOUNT VALUES
+
+               The amount can still be changed using:
+
+               - Keyboard numbers
+               - Keyboard arrow keys
+               - Backspace
+               - Delete
+               - Paste
+               - Normal typing
+
+               Only mouse-wheel modification is blocked.
+               ===================================================== */
+
+            const amountFields =
+                document.querySelectorAll(
+                    ".amount-input[type='number']"
+                );
+
+            amountFields.forEach(function (field) {
+
+                field.addEventListener(
+                    "wheel",
+                    function (event) {
+
+                        /*
+                         * Prevent the browser from increasing
+                         * or decreasing the number when the
+                         * mouse wheel is scrolled.
+                         */
+
+                        event.preventDefault();
+
+                    },
+                    {
+                        passive: false
+                    }
+                );
+
+            });
+
+
+            /* =====================================================
+               QUERY / CERTIFICATION LOGIC
+               ===================================================== */
+
+            function validateQuery() {
+
+                const queryValue =
+                    queryBox.value
+                        .trim()
+                        .toUpperCase();
+
+
+                /*
+                 * CERTIFICATION IS AVAILABLE
+                 * ONLY WHEN QUERY = NIL
+                 */
+
+                if (queryValue === "NIL") {
+
+                    certifyBox.disabled = false;
+
+                }
+                else {
+
+                    certifyBox.checked = false;
+
+                    certifyBox.disabled = true;
+
+                    submitBtn.disabled = true;
+
+                }
+
+
+                /*
+                 * SEND TO QUERY IS AVAILABLE
+                 * WHEN ACTUAL QUERY EXISTS
+                 */
+
+                if (
+                    queryValue === "" ||
+                    queryValue === "NIL"
+                ) {
+
+                    queryBtn.disabled = true;
+
+                }
+                else {
+
+                    queryBtn.disabled = false;
+
+                }
+
+            }
+
+
+            queryBox.addEventListener(
+                "input",
+                validateQuery
+            );
+
+            queryBox.addEventListener(
+                "change",
+                validateQuery
+            );
+
+
+            /* =====================================================
+               CERTIFICATION CHECKBOX
+               ===================================================== */
+
+            certifyBox.addEventListener(
+                "change",
+                function () {
+
+                    submitBtn.disabled =
+                        !certifyBox.checked;
+
+                }
+            );
+
+
+            /* =====================================================
+               INITIALIZE
+               ===================================================== */
+
+            updateGrossAmount();
+
+            validateQuery();
+
+        });
+
+    </script>
+
+</body>
+
+</html>

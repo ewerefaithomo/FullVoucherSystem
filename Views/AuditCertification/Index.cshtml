@@ -1,0 +1,206 @@
+﻿@model List<FullVoucherSystem.Models.Audit>
+
+@if (TempData["Message"] != null)
+{
+    <div style="background-color:#d4edda;
+                    color:#155724;
+                    padding:10px;
+                    margin-bottom:15px;
+                    border-radius:5px;">
+        @TempData["Message"]
+    </div>
+}
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Audit Certification Records - UBTH</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-area img {
+                width: 60px;
+            }
+
+            .logo-area h2 {
+                margin-left: 10px;
+                color: #2e7d32;
+            }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .btn-dashboard {
+            background-color: #2e7d32;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+            .btn-dashboard:hover {
+                background-color: #1b5e20;
+            }
+
+        /* Container */
+        .container {
+            padding: 30px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            color: green;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background-color: #f1f8f4;
+            cursor: pointer;
+        }
+
+        .pending {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <img src="~/images/ubth-logo.jpeg" alt="UBTH Logo" />
+            <h2>UBTH Voucher Records for Auditing</h2>
+        </div>
+
+        <div class="user-info">
+            <a href="/Dashboard/Index" class="btn-dashboard">Back to Dashboard</a>
+            <span>@ViewBag.Surname @ViewBag.FirstName</span>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container">
+        <div class="card">
+
+            <h2>Audit Certification Records</h2>
+
+            @if (TempData["Message"] != null)
+            {
+                <p class="message">@TempData["Message"]</p>
+            }
+
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Voucher No</th>
+                    <th>Payee</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Prepared By</th>
+                    <th>Certified By</th>
+                </tr>
+
+                @foreach (var item in Model)
+                {
+                    <tr onclick="openRecord(@item.Id)">
+                        <td>@item.Id</td>
+                        <td>@item.VoucherNumber</td>
+                        <td>@item.Payee</td>
+                        <td>@item.Amount</td>
+                        <td>@item.Date.ToShortDateString()</td>
+
+                        <td>
+                            @item.Voucher_Surname @item.Voucher_FirstName (@item.Voucher_Designation)
+                        </td>
+
+                        <td>
+                            @if (item.Bill_Surname != null)
+                            {
+                                @(item.Bill_Surname + " " + item.Bill_FirstName + " (" + item.Bill_Designation + ")")
+                            }
+                            else
+                            {
+                                <span class="pending">Pending</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+
+        </div>
+    </div>
+
+    <script>
+        function openRecord(id)
+        {
+            window.location.href='/AuditCertification/Edit?id=' + id;
+        }
+    </script>
+
+</body>
+</html>

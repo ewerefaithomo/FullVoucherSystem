@@ -1,0 +1,125 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Search Voucher</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(to right,#e8f5e9,#c8e6c9);
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 100px;
+        }
+
+        .box {
+            width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #2e7d32;
+            color: white;
+            font-weight: bold;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            background: gray;
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="box">
+
+            <h2>Search Existing Voucher</h2>
+
+            @if (ViewBag.Message != null)
+            {
+                <p class="message">
+                    @ViewBag.Message
+                </p>
+            }
+
+            <form asp-action="SearchVoucher"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="text"
+                       name="voucherNumber"
+                       list="voucherlist"
+                       placeholder="Type or Select Voucher Number"
+                       required />
+
+                <datalist id="voucherlist">
+
+                    @foreach (string item in ViewBag.VoucherNumbers)
+                    {
+                        <option value="@item"></option>
+                    }
+
+                </datalist>
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+
+            <a href="/Dashboard/Index"
+               class="close-btn">
+                Close
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
